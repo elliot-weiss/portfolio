@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elliot Weiss — Dashboard Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+
+  <!-- ─── Navbar ─── -->
+  <nav id="navbar">
+    <div class="nav-inner">
+      <a href="#hero" class="logo"><img src="static/logo.svg" alt="Elliot Weiss" class="nav-logo-img"></a>
+      <div class="nav-links" id="navLinks">
+        <a href="#work">Work</a>
+        <a href="#cv">CV</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ─── Hero ─── -->
+  <section id="hero">
+    <div class="hero-bg">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+    </div>
+    <div class="hero-content">
+      <img src="static/headshot.jpeg" alt="Elliot Weiss" class="hero-headshot">
+      <div class="hero-badge">Data Analytics Professional &amp; Data Storyteller</div>
+      <h1>Hi, I'm <span class="gradient-text">Elliot Weiss</span></h1>
+      <p class="hero-sub">I turn complex data into dashboards people actually want to use.</p>
+      <div class="hero-cta">
+        <a href="#work" class="btn btn-glow">View My Work</a>
+        <a href="#contact" class="btn btn-glass">Get in Touch</a>
+      </div>
+    </div>
+    <div class="scroll-indicator">
+      <div class="mouse"><div class="wheel"></div></div>
+    </div>
+  </section>
+
+  <!-- ─── Work ─── -->
+  <section id="work">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Portfolio</span>
+        <h2>Selected Dashboards</h2>
+        <p>Projects I've designed and built.</p>
+      </div>
+      <div class="card-grid">
+        
+        <article class="card reveal" style="--accent: #7c3aed" data-dashboard="static/dashboards/barbershop.html" data-title="Barbershop Dashboard">
+          <div class="card-top">
+            <div class="card-icon"><i class="fa-solid fa-scissors"></i></div>
+            <span class="card-cat">Small Business</span>
+          </div>
+          <h3>Barbershop Dashboard</h3>
+          <p>A full-featured barbershop management dashboard with appointment scheduling, client tracking, service pricing, wait time management, analytics, and payment processing.</p>
+          <div class="card-view-label">Click to preview <i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+          <div class="card-glow"></div>
+        </article>
+        
+        <article class="card reveal" style="--accent: #D9856A" data-dashboard="static/dashboards/gabby.html" data-title="Huckleberry Tracking Dashboard">
+          <div class="card-top">
+            <div class="card-icon"><i class="fa-solid fa-baby"></i></div>
+            <span class="card-cat">Health &amp; Wellness</span>
+          </div>
+          <h3>Huckleberry Tracking Dashboard</h3>
+          <p>A baby care tracking dashboard that visualizes feeding schedules, diaper changes, sleep patterns, and medication logs from Huckleberry CSV exports.</p>
+          <div class="card-view-label">Click to preview <i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+          <div class="card-glow"></div>
+        </article>
+        
+        <article class="card reveal" style="--accent: #185FA5" data-dashboard="static/dashboards/amazon.html" data-title="Amazon Orders Dashboard">
+          <div class="card-top">
+            <div class="card-icon"><i class="fa-solid fa-cart-shopping"></i></div>
+            <span class="card-cat">Personal Finance</span>
+          </div>
+          <h3>Amazon Orders Dashboard</h3>
+          <p>An interactive dashboard analyzing personal Amazon purchase history from 2020–2026, with spend trends, category breakdowns, monthly patterns, and top purchases visualized through Chart.js.</p>
+          <div class="card-view-label">Click to preview <i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+          <div class="card-glow"></div>
+        </article>
+        
+      </div>
+
+      <!-- Dashboard Modal -->
+      <div class="modal-overlay" id="dashboardModal">
+        <div class="modal-header">
+          <span class="modal-title" id="modalTitle"></span>
+          <button class="modal-close" id="modalClose"><i class="fa-solid fa-xmark"></i> Close</button>
+        </div>
+        <div class="modal-iframe-wrap" id="modalIframeWrap">
+          <iframe class="modal-iframe" id="modalIframe" src="" frameborder="0"></iframe>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── CV ─── -->
+  <section id="cv">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Background</span>
+        <h2>Curriculum Vitae</h2>
+        <p>Where I've been and what I bring.</p>
+      </div>
+
+      <div class="cv-layout">
+        <!-- Timeline -->
+        <div class="timeline">
+          
+          <div class="tl-item reveal">
+            <div class="tl-dot"></div>
+            <div class="tl-card">
+              <span class="tl-year">Jan 2025 — Present</span>
+              <h4>Director of Analytics and Technology</h4>
+              <span class="tl-company">ALIYA Healthcare, Skokie, IL</span>
+              <p>I lead data strategy and technology infrastructure across multiple skilled nursing facilities, aligning analytics with clinical, operational, and financial goals. My work focuses on improving CMS Star Ratings, rehospitalization rates, clinical outcomes, and patient satisfaction through cross-functional collaboration and data-driven performance initiatives. I also oversee data integrity, HIPAA compliance, cybersecurity standards, vendor partnerships, and staff training to strengthen data literacy and operational efficiency.</p>
+            </div>
+          </div>
+          
+          <div class="tl-item reveal">
+            <div class="tl-dot"></div>
+            <div class="tl-card">
+              <span class="tl-year">Dec 2021 — Jan 2025</span>
+              <h4>Statistical Programmer I</h4>
+              <span class="tl-company">IQVIA, Biostatistics, Remote (US)</span>
+              <p>I served as Quality Control Project Lead across five clinical studies in immunology, oncology, and biotechnology. I was responsible for planning and executing QC on SDTM datasets, derived analysis databases, and the statistical outputs that informed regulatory submissions. I also developed programming documentation, worked closely with both internal teams and external clients to deliver technical solutions, and built and validated new macros and process tools that our team adopted across projects.</p>
+            </div>
+          </div>
+          
+          <div class="tl-item reveal">
+            <div class="tl-dot"></div>
+            <div class="tl-card">
+              <span class="tl-year">Jun 2021 — Dec 2021</span>
+              <h4>Statistical Programmer I</h4>
+              <span class="tl-company">PHASTAR, Programming Department, Remote (US)</span>
+              <p>I programmed SDTMs, derived datasets, summary tables, listings, and figures for clinical trials. I built macros ranging from simple utilities to complex automation, and contributed to the review and refinement of dataset specifications and summary shells. This was a collaborative, fast-paced environment where I sharpened my SAS programming and clinical data skills.</p>
+            </div>
+          </div>
+          
+          <div class="tl-item reveal">
+            <div class="tl-dot"></div>
+            <div class="tl-card">
+              <span class="tl-year">Nov 2020 — May 2021</span>
+              <h4>COVID-19 Contact Tracer</h4>
+              <span class="tl-company">University of Illinois at Chicago, School of Public Health</span>
+              <p>I interviewed individuals with probable or confirmed COVID-19 infections at UIC, guiding them through isolation and quarantine protocols. I maintained ongoing contact to monitor symptoms and provide public health guidance, and handled data entry of all interviews and follow-ups in RedCap. This role deepened my understanding of epidemiology in practice and reinforced the importance of clear, empathetic communication in public health work.</p>
+            </div>
+          </div>
+          
+          <div class="tl-item reveal">
+            <div class="tl-dot"></div>
+            <div class="tl-card">
+              <span class="tl-year">Apr 2020 — Aug 2020</span>
+              <h4>Public Health Intern, Salesforce Tech Advisor</h4>
+              <span class="tl-company">Village of Skokie, Dept. of Health &amp; Human Services</span>
+              <p>I wore multiple hats during this internship — conducting contact tracing interviews, training other tracers on Salesforce, and supporting the Head Data Analyst with data management and Tableau dashboards. I also analyzed local COVID-19 trends against CDC risk factors and wrote a report on findings and policy implications. On the tech side, I served as the department&#39;s Salesforce advisor, handling troubleshooting, vendor communications, and software updates.</p>
+            </div>
+          </div>
+          
+          <div class="tl-item reveal">
+            <div class="tl-dot"></div>
+            <div class="tl-card">
+              <span class="tl-year">Aug 2017 — Aug 2019</span>
+              <h4>Rehabilitation Specialist</h4>
+              <span class="tl-company">Aligned Modern Health, Chicago, IL</span>
+              <p>I worked alongside a Doctor of Chiropractic Medicine to develop and execute patient treatment plans, leading rehabilitation exercises and educating patients on health and wellness. Beyond clinical work, I helped run the clinic — managing scheduling, insurance checks, and administrative tasks — and played an active role in community marketing and planning monthly clinic events.</p>
+            </div>
+          </div>
+          
+        </div>
+
+        <!-- Skills + Education -->
+        <aside class="cv-aside">
+          <div class="aside-block glass-card reveal">
+            <h4><i class="fa-solid fa-wand-magic-sparkles"></i> Areas of Expertise</h4>
+            <div class="skill-cloud">
+              
+              <span class="skill-pill">SAS</span>
+              
+              <span class="skill-pill">SQL</span>
+              
+              <span class="skill-pill">Python</span>
+              
+              <span class="skill-pill">R</span>
+              
+              <span class="skill-pill">ArcGIS Pro</span>
+              
+              <span class="skill-pill">Tableau</span>
+              
+              <span class="skill-pill">Power BI</span>
+              
+              <span class="skill-pill">Microsoft Excel</span>
+              
+              <span class="skill-pill">Microsoft O365</span>
+              
+              <span class="skill-pill">Database Management</span>
+              
+              <span class="skill-pill">SFTP</span>
+              
+              <span class="skill-pill">Dashboard Development</span>
+              
+              <span class="skill-pill">Statistical Modeling</span>
+              
+              <span class="skill-pill">Data Collection</span>
+              
+              <span class="skill-pill">Epidemiology &amp; Biostatistics</span>
+              
+              <span class="skill-pill">Public Health Research</span>
+              
+              <span class="skill-pill">Public Health Surveillance Systems</span>
+              
+              <span class="skill-pill">Information Technology</span>
+              
+              <span class="skill-pill">Leadership</span>
+              
+              <span class="skill-pill">Communication</span>
+              
+              <span class="skill-pill">Consulting</span>
+              
+              <span class="skill-pill">External Stakeholders</span>
+              
+            </div>
+          </div>
+          
+          <div class="aside-block glass-card reveal">
+            <h4><i class="fa-solid fa-graduation-cap"></i> Education</h4>
+            <p class="edu-degree">Master of Public Health</p>
+            <p class="edu-concentration">Epidemiology / Biostatistics</p>
+            <p class="edu-school">University of Illinois at Chicago (UIC), School of Public Health, May 2021</p>
+            
+          </div>
+          
+          <div class="aside-block glass-card reveal">
+            <h4><i class="fa-solid fa-graduation-cap"></i> Education</h4>
+            <p class="edu-degree">Bachelor of Science in Kinesiology</p>
+            <p class="edu-concentration">Movement Science</p>
+            <p class="edu-school">University of Illinois at Chicago (UIC), Dec 2016</p>
+            
+            <p class="edu-detail">Helen M. Barton Summer Undergraduate Research Scholarship</p>
+            
+          </div>
+          
+          <a href="static/RESUME_ElliotWeiss.pdf" download class="btn btn-glow" style="width:100%;text-align:center;margin-top:1rem;">
+            <i class="fa-solid fa-download"></i>&ensp;Download CV
+          </a>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Contact ─── -->
+  <section id="contact">
+    <div class="container container-sm">
+      <div class="section-header">
+        <span class="section-tag">Say Hello</span>
+        <h2>Get in Touch</h2>
+        <p>Have a project in mind or just want to connect?</p>
+      </div>
+
+      <form class="contact-form glass-card reveal" id="contactForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="c-name">Name <span class="req">*</span></label>
+            <input id="c-name" name="name" type="text" placeholder="Your name" required>
+          </div>
+          <div class="form-group">
+            <label for="c-email">Email <span class="req">*</span></label>
+            <input id="c-email" name="email" type="email" placeholder="you@example.com" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="c-subject">Subject</label>
+          <input id="c-subject" name="subject" type="text" placeholder="What's this about?">
+        </div>
+        <div class="form-group">
+          <label for="c-message">Message <span class="req">*</span></label>
+          <textarea id="c-message" name="message" rows="5" placeholder="Tell me about your project..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-glow btn-full">
+          <span class="btn-text">Send Message</span>
+          <span class="btn-loader" hidden><i class="fa-solid fa-circle-notch fa-spin"></i></span>
+        </button>
+        <p class="form-status" id="formStatus"></p>
+      </form>
+
+      <div class="contact-links">
+        <a href="https://linkedin.com/in/eweiss225" target="_blank" rel="noopener" class="contact-chip glass-card"><i class="fa-brands fa-linkedin-in"></i> Connect with me on LinkedIn</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Footer ─── -->
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 Elliot Weiss.</p>
+    </div>
+  </footer>
+
+  <script>
+    /* ── Navbar scroll ── */
+    const nav = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    /* ── Mobile menu ── */
+    const hamburger = document.getElementById('hamburger');
+    const navLinks  = document.getElementById('navLinks');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('active');
+      navLinks.classList.toggle('open');
+    });
+    navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      hamburger.classList.remove('active');
+      navLinks.classList.remove('open');
+    }));
+
+    /* ── Smooth scroll ── */
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        const el = document.querySelector(a.getAttribute('href'));
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    /* ── Scroll reveal ── */
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+    /* ── Card mouse glow ── */
+    document.querySelectorAll('.card').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', `${e.clientX - r.left}px`);
+        card.style.setProperty('--my', `${e.clientY - r.top}px`);
+      });
+    });
+
+    /* ── Dashboard modal ── */
+    const modal  = document.getElementById('dashboardModal');
+    const iframe = document.getElementById('modalIframe');
+    const wrap   = document.getElementById('modalIframeWrap');
+    const mTitle = document.getElementById('modalTitle');
+    const mClose = document.getElementById('modalClose');
+
+    function scaleIframe() {
+      const wrapW = wrap.clientWidth;
+      const scale = wrapW / 1440;
+      iframe.style.transform = `scale(${scale})`;
+      iframe.style.height = (wrap.clientHeight / scale) + 'px';
+    }
+
+    document.querySelectorAll('.card[data-dashboard]').forEach(card => {
+      card.addEventListener('click', () => {
+        const src   = card.dataset.dashboard;
+        const title = card.dataset.title;
+        if (!src) return;
+        mTitle.textContent = title;
+        iframe.src = src;
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        requestAnimationFrame(scaleIframe);
+      });
+    });
+
+    window.addEventListener('resize', () => {
+      if (modal.classList.contains('open')) scaleIframe();
+    });
+
+    mClose.addEventListener('click', () => {
+      modal.classList.remove('open');
+      iframe.src = '';
+      document.body.style.overflow = '';
+    });
+
+    modal.addEventListener('click', e => {
+      if (e.target === modal) {
+        modal.classList.remove('open');
+        iframe.src = '';
+        document.body.style.overflow = '';
+      }
+    });
+
+    /* ── Contact form — opens user's email client to send to eweiss225@outlook.com ── */
+    const form   = document.getElementById('contactForm');
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const name    = form.name.value.trim();
+      const email   = form.email.value.trim();
+      const subject = form.subject.value.trim() || 'Portfolio Contact';
+      const message = form.message.value.trim();
+
+      if (!name || !email || !message) return;
+
+      const body = `From: ${name} (${email})\n\n${message}`;
+      const mailto = `mailto:eweiss225@outlook.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.location.href = mailto;
+    });
+  </script>
+</body>
+</html>

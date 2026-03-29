@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gabby's Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #FAF7F2; --blush: #F2C5BB; --rose: #D9856A; --deep: #3B2A2A;
+    --muted: #9C7E7A; --mint-light: #D6EBE1; --sun-light: #FBF3D5;
+    --lilac-light: #EBE5F5; --card: #FFFFFF; --border: rgba(59,42,42,0.08);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'DM Sans',sans-serif; background:var(--cream); color:var(--deep); min-height:100vh; }
+
+  header {
+    background:var(--deep); color:var(--cream); padding:28px 40px 24px;
+    display:flex; align-items:center; gap:20px; position:relative; overflow:hidden;
+  }
+  header::before {
+    content:''; position:absolute; top:-40px; right:-40px;
+    width:200px; height:200px; border-radius:50%; background:var(--blush); opacity:0.12;
+  }
+  .avatar {
+    width:56px; height:56px; border-radius:50%;
+    background:linear-gradient(135deg,var(--blush),var(--rose));
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Playfair Display',serif; font-size:22px; color:white; flex-shrink:0;
+  }
+  .header-text h1 { font-family:'Playfair Display',serif; font-size:26px; font-weight:600; }
+  .header-text p { font-size:13px; color:var(--blush); margin-top:2px; font-weight:300; }
+  .upload-btn {
+    margin-left:auto; background:var(--rose); color:white; border:none;
+    padding:10px 22px; border-radius:100px; font-family:'DM Sans',sans-serif;
+    font-size:13px; font-weight:500; cursor:pointer; transition:all 0.2s; position:relative; z-index:1;
+  }
+  .upload-btn:hover { background:var(--blush); color:var(--deep); }
+  #csvInput { display:none; }
+
+  main { max-width:1100px; margin:0 auto; padding:32px 24px 60px; }
+
+  #emptyState { text-align:center; padding:80px 20px; }
+  .empty-icon { font-size:56px; margin-bottom:16px; animation:float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+  #emptyState h2 { font-family:'Playfair Display',serif; font-size:22px; margin-bottom:8px; }
+  #emptyState p { color:var(--muted); font-size:14px; max-width:340px; margin:0 auto 24px; line-height:1.6; }
+  .upload-btn-lg {
+    background:var(--rose); color:white; border:none; padding:14px 32px; border-radius:100px;
+    font-family:'DM Sans',sans-serif; font-size:15px; font-weight:500; cursor:pointer; transition:all 0.2s;
+  }
+  .upload-btn-lg:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(217,133,106,0.35); }
+
+  #dashboard { display:none; }
+
+  .section-label {
+    font-size:11px; font-weight:500; letter-spacing:1.5px; text-transform:uppercase;
+    color:var(--muted); margin-bottom:14px; margin-top:32px;
+  }
+
+  .summary-strip { background:var(--deep); border-radius:18px; padding:22px 28px; display:flex; }
+  .strip-item {
+    flex:1; text-align:center; color:var(--cream);
+    border-right:1px solid rgba(255,255,255,0.1); padding:0 16px;
+  }
+  .strip-item:last-child { border-right:none; }
+  .strip-item .s-val { font-family:'Playfair Display',serif; font-size:26px; font-weight:600; }
+  .strip-item .s-lbl { font-size:11px; opacity:0.5; margin-top:4px; text-transform:uppercase; letter-spacing:0.8px; }
+
+  .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; }
+  .stat-card {
+    background:var(--card); border-radius:18px; padding:22px 22px 18px;
+    border:1px solid var(--border); transition:transform 0.2s;
+  }
+  .stat-card:hover { transform:translateY(-2px); }
+  .stat-card .accent-dot {
+    width:36px; height:36px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; font-size:18px; margin-bottom:14px;
+  }
+  .stat-card .value { font-family:'Playfair Display',serif; font-size:32px; font-weight:600; line-height:1; margin-bottom:4px; }
+  .stat-card .label { font-size:13px; color:var(--muted); }
+  .stat-card .sublabel { font-size:11px; color:var(--muted); margin-top:8px; opacity:0.7; }
+  .card-rose .accent-dot{background:#FDE8E2} .card-rose .value{color:var(--rose)}
+  .card-mint .accent-dot{background:var(--mint-light)} .card-mint .value{color:#4A9B7F}
+  .card-sun  .accent-dot{background:var(--sun-light)}  .card-sun .value{color:#B8902A}
+  .card-lil  .accent-dot{background:var(--lilac-light)} .card-lil .value{color:#7057A0}
+
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media(max-width:720px){.two-col{grid-template-columns:1fr}}
+
+  .panel { background:var(--card); border-radius:18px; border:1px solid var(--border); overflow:hidden; }
+  .panel-header {
+    padding:18px 22px 14px; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; gap:10px;
+  }
+  .panel-header .icon { font-size:18px; }
+  .panel-header h3 { font-family:'Playfair Display',serif; font-size:16px; font-weight:600; }
+  .panel-header .badge {
+    margin-left:auto; background:var(--cream); font-size:11px;
+    font-weight:500; padding:3px 10px; border-radius:100px; color:var(--muted);
+  }
+  .panel-body { padding:18px 22px; }
+
+  .bar-row { display:flex; align-items:center; gap:10px; margin-bottom:9px; }
+  .bar-label { font-size:12px; color:var(--muted); width:32px; text-align:right; flex-shrink:0; }
+  .bar-track { flex:1; height:20px; background:var(--cream); border-radius:100px; overflow:hidden; }
+  .bar-fill { height:100%; border-radius:100px; transition:width 0.6s cubic-bezier(0.4,0,0.2,1); }
+  .bar-val { font-size:12px; color:var(--deep); font-weight:500; width:24px; flex-shrink:0; }
+
+  .insight-row { display:flex; flex-wrap:wrap; gap:10px; }
+  .chip {
+    background:var(--card); border:1px solid var(--border); border-radius:14px;
+    padding:14px 18px; font-size:13px; line-height:1.5; flex:1; min-width:160px;
+  }
+  .chip strong { display:block; font-size:20px; font-family:'Playfair Display',serif; color:var(--rose); margin-bottom:2px; }
+  .chip.mint strong{color:#4A9B7F} .chip.sun strong{color:#B8902A} .chip.lil strong{color:#7057A0}
+
+  .tod-grid { display:grid; grid-template-columns:repeat(24,1fr); gap:3px; margin-bottom:6px; }
+  .tod-cell { height:30px; border-radius:4px; position:relative; cursor:default; }
+  .tod-cell:hover::after {
+    content:attr(data-tip); position:absolute; bottom:calc(100% + 5px); left:50%; transform:translateX(-50%);
+    background:var(--deep); color:white; font-size:10px; padding:3px 8px; border-radius:6px;
+    white-space:nowrap; pointer-events:none; z-index:10;
+  }
+  .tod-labels { display:flex; justify-content:space-between; font-size:10px; color:var(--muted); }
+
+  .hist-wrap { display:flex; align-items:flex-end; gap:5px; height:90px; }
+  .hist-col { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; height:100%; justify-content:flex-end; }
+  .hist-bar { width:100%; border-radius:5px 5px 0 0; min-height:3px; }
+  .hist-x { font-size:10px; color:var(--muted); }
+
+  /* Donut */
+  .donut-wrap { display:flex; align-items:center; gap:24px; }
+  .donut-legend { display:flex; flex-direction:column; gap:12px; }
+  .legend-item { display:flex; align-items:center; gap:8px; font-size:13px; }
+  .legend-dot { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
+  .legend-name { flex:1; }
+  .legend-pct { font-weight:600; }
+  .legend-cnt { font-size:11px; color:var(--muted); }
+
+  /* Stacked bar */
+  .stacked-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+  .stacked-label { font-size:12px; color:var(--muted); width:32px; text-align:right; flex-shrink:0; }
+  .stacked-track { flex:1; height:20px; border-radius:100px; overflow:hidden; display:flex; background:var(--cream); }
+  .stacked-seg { height:100%; transition:width 0.5s ease; }
+  .stacked-total { font-size:12px; font-weight:500; width:20px; flex-shrink:0; }
+
+  /* Size breakdown table */
+  .size-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+  .size-cell {
+    background:var(--cream); border-radius:12px; padding:12px 14px; text-align:center;
+  }
+  .size-cell .sz-val { font-family:'Playfair Display',serif; font-size:22px; font-weight:600; }
+  .size-cell .sz-lbl { font-size:11px; color:var(--muted); margin-top:2px; }
+
+  .error-msg { background:#FDE8E2; color:var(--rose); padding:14px 20px; border-radius:12px; font-size:14px; margin-bottom:20px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="avatar">G</div>
+  <div class="header-text">
+    <h1>Gabrielle Sloane</h1>
+    <p>Baby Tracker Dashboard · aka Gabby 🌸</p>
+  </div>
+  <button class="upload-btn" onclick="document.getElementById('csvInput').click()">Upload CSV</button>
+  <input type="file" id="csvInput" accept=".csv" onchange="handleCSV(event)">
+</header>
+
+<main>
+  <div id="emptyState">
+    <div class="empty-icon">🌸</div>
+    <h2>Welcome, Gabby's Dashboard</h2>
+    <p>Upload your Huckleberry CSV export to see feeding and diaper insights beautifully organized.</p>
+    <button class="upload-btn-lg" onclick="document.getElementById('csvInput').click()">Upload Huckleberry CSV</button>
+  </div>
+
+  <div id="dashboard">
+    <div id="errorMsg"></div>
+
+    <div class="section-label">Overview</div>
+    <div class="summary-strip" id="summaryStrip"></div>
+
+    <!-- ══ FEEDING ══ -->
+    <div class="section-label">Feeding Insights</div>
+    <div class="stat-grid" id="feedStatGrid"></div>
+    <div style="margin-top:14px" class="insight-row" id="feedInsights"></div>
+
+    <div style="margin-top:16px" class="two-col">
+      <div class="panel">
+        <div class="panel-header"><span class="icon">🍼</span><h3>Feeds per Day</h3><span class="badge" id="feedDayBadge"></span></div>
+        <div class="panel-body" id="feedBarChart"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><span class="icon">🕐</span><h3>Feed Time of Day</h3></div>
+        <div class="panel-body">
+          <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Darker = more feeds that hour</p>
+          <div class="tod-grid" id="todGrid"></div>
+          <div class="tod-labels"><span>12a</span><span>6a</span><span>12p</span><span>6p</span><span>11p</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px" class="panel">
+      <div class="panel-header"><span class="icon">⏱</span><h3>Gap Between Feeds — Distribution</h3></div>
+      <div class="panel-body">
+        <p style="font-size:12px;color:var(--muted);margin-bottom:14px">How often feeding gaps fall into each 30-minute window (up to 8 hours)</p>
+        <div class="hist-wrap" id="feedHistogram"></div>
+      </div>
+    </div>
+
+    <!-- ══ DIAPERS ══ -->
+    <div class="section-label">Diaper Insights</div>
+    <div class="stat-grid" id="diaperStatGrid"></div>
+    <div style="margin-top:14px" class="insight-row" id="diaperInsights"></div>
+
+    <div style="margin-top:16px" class="two-col">
+      <div class="panel">
+        <div class="panel-header"><span class="icon">🧷</span><h3>Diaper Type Breakdown</h3></div>
+        <div class="panel-body" id="diaperDonut"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><span class="icon">📅</span><h3>Diapers per Day</h3><span class="badge" id="diaperDayBadge"></span></div>
+        <div class="panel-body" id="diaperBarChart"></div>
+      </div>
+    </div>
+
+    <!-- Size breakdown -->
+    <div style="margin-top:16px" class="two-col">
+      <div class="panel">
+        <div class="panel-header"><span class="icon">💧</span><h3>Pee Size Breakdown</h3></div>
+        <div class="panel-body" id="peeSizeGrid"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><span class="icon">💩</span><h3>Poo Size Breakdown</h3></div>
+        <div class="panel-body" id="pooSizeGrid"></div>
+      </div>
+    </div>
+
+    <!-- Stacked by day -->
+    <div style="margin-top:16px" class="panel">
+      <div class="panel-header"><span class="icon">📊</span><h3>Diaper Type by Day</h3></div>
+      <div class="panel-body">
+        <div style="display:flex;gap:18px;margin-bottom:14px;flex-wrap:wrap">
+          <span style="display:flex;align-items:center;gap:6px;font-size:12px"><span style="width:10px;height:10px;border-radius:50%;background:#6BAED6;display:inline-block"></span>Pee 💧</span>
+          <span style="display:flex;align-items:center;gap:6px;font-size:12px"><span style="width:10px;height:10px;border-radius:50%;background:#D9856A;display:inline-block"></span>Poo 💩</span>
+          <span style="display:flex;align-items:center;gap:6px;font-size:12px"><span style="width:10px;height:10px;border-radius:50%;background:#C4B5D4;display:inline-block"></span>Both 🔄</span>
+        </div>
+        <div id="diaperStackedChart"></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+// ── CSV PARSER ─────────────────────────────────────────────────
+function parseCSV(text) {
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g,'').toLowerCase());
+  return lines.slice(1).map(line => {
+    const cols=[]; let inQ=false, cur='';
+    for (let c of line) {
+      if (c==='"'){inQ=!inQ}
+      else if(c===','&&!inQ){cols.push(cur.trim());cur=''}
+      else cur+=c;
+    }
+    cols.push(cur.trim());
+    const obj={};
+    headers.forEach((h,i)=>obj[h]=(cols[i]||'').replace(/^"|"$/g,'').trim());
+    return obj;
+  }).filter(r=>Object.values(r).some(v=>v));
+}
+
+// ── DIAPER TYPE from "End Condition" column ─────────────────────
+// Values seen: "Pee", "Pee:small", "Pee:medium", "Pee:large",
+//              "Poo", "Poo:small", "Poo:medium", "Poo:large",
+//              "Both, pee:small poo:large" etc.
+function parseDiaperEndCondition(row) {
+  const raw = (row['end condition'] || '').trim();
+  if (!raw) return { type: 'unknown', peeSize: null, pooSize: null, raw };
+
+  const lower = raw.toLowerCase();
+
+  // "Both, pee:X poo:Y"
+  if (lower.startsWith('both')) {
+    const peeMatch = lower.match(/pee:(\w+)/);
+    const pooMatch = lower.match(/poo:(\w+)/);
+    return {
+      type: 'both',
+      peeSize: peeMatch ? peeMatch[1] : null,
+      pooSize: pooMatch ? pooMatch[1] : null,
+      raw
+    };
+  }
+
+  // "Poo" or "Poo:size"
+  if (lower.startsWith('poo')) {
+    const m = lower.match(/poo:?(\w+)?/);
+    const size = m && m[1] && m[1] !== 'poo' ? m[1] : null;
+    return { type: 'poo', peeSize: null, pooSize: size, raw };
+  }
+
+  // "Pee" or "Pee:size"
+  if (lower.startsWith('pee')) {
+    const m = lower.match(/pee:?(\w+)?/);
+    const size = m && m[1] && m[1] !== 'pee' ? m[1] : null;
+    return { type: 'pee', peeSize: size, pooSize: null, raw };
+  }
+
+  return { type: 'unknown', peeSize: null, pooSize: null, raw };
+}
+
+function detectType(row) {
+  const t = (row.type || '').toLowerCase();
+  if (/feed/.test(t)) return 'feed';
+  if (/diaper/.test(t)) return 'diaper';
+  return t || 'other';
+}
+
+function parseDate(row) {
+  const raw = row.start || row.time || row.date || '';
+  const d = new Date(raw);
+  return isNaN(d) ? null : d;
+}
+
+// ── MAIN ──────────────────────────────────────────────────────
+function handleCSV(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => processData(ev.target.result);
+  reader.readAsText(file);
+}
+
+function processData(text) {
+  let rows = parseCSV(text);
+  if (!rows.length) { showError('Could not parse CSV.'); return; }
+
+  rows = rows.map(r => ({
+    ...r,
+    _type: detectType(r),
+    _date: parseDate(r),
+  })).filter(r => r._date).sort((a,b) => b._date - a._date);
+
+  if (!rows.length) { showError('No valid date entries found.'); return; }
+
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+
+  const feeds   = rows.filter(r => r._type === 'feed');
+  const diapers = rows.filter(r => r._type === 'diaper').map(r => ({
+    ...r,
+    _diaper: parseDiaperEndCondition(r)
+  }));
+
+  const oldest  = rows[rows.length-1]._date;
+  const newest  = rows[0]._date;
+  const daySpan = Math.max(1, Math.round((newest - oldest) / 86400000) + 1);
+
+  const fmt12 = h => { const a=h>=12?'pm':'am'; return `${h%12||12}${a}`; };
+  function fmtHrs(h) {
+    if (h===null||isNaN(h)) return '—';
+    const hh=Math.floor(h), mm=Math.round((h-hh)*60);
+    return mm>0 ? `${hh}h ${mm}m` : `${hh}h`;
+  }
+  function gaps(arr, maxH=12) {
+    const s=[...arr].sort((a,b)=>a._date-b._date), g=[];
+    for (let i=1;i<s.length;i++) {
+      const d=(s[i]._date-s[i-1]._date)/3600000;
+      if (d>0&&d<=maxH) g.push(d);
+    }
+    return g;
+  }
+  function avg(a) { return a.length ? a.reduce((x,y)=>x+y,0)/a.length : null; }
+  function med(a) {
+    if (!a.length) return null;
+    const s=[...a].sort((x,y)=>x-y), m=Math.floor(s.length/2);
+    return s.length%2 ? s[m] : (s[m-1]+s[m])/2;
+  }
+
+  // ── SUMMARY ──
+  document.getElementById('summaryStrip').innerHTML = `
+    <div class="strip-item"><div class="s-val">${daySpan}</div><div class="s-lbl">Days Tracked</div></div>
+    <div class="strip-item"><div class="s-val">${feeds.length}</div><div class="s-lbl">Total Feeds</div></div>
+    <div class="strip-item"><div class="s-val">${(feeds.length/daySpan).toFixed(1)}</div><div class="s-lbl">Feeds / Day</div></div>
+    <div class="strip-item"><div class="s-val">${diapers.length}</div><div class="s-lbl">Total Diapers</div></div>
+    <div class="strip-item"><div class="s-val">${(diapers.length/daySpan).toFixed(1)}</div><div class="s-lbl">Diapers / Day</div></div>
+  `;
+
+  // ══════════════════════════════════════
+  // FEEDING
+  // ══════════════════════════════════════
+  const fg   = gaps(feeds, 12);
+  const avgG = avg(fg), medG = med(fg);
+  const minG = fg.length ? Math.min(...fg) : null;
+  const maxG = fg.length ? Math.max(...fg) : null;
+
+  document.getElementById('feedStatGrid').innerHTML = `
+    <div class="stat-card card-rose">
+      <div class="accent-dot">⏱</div>
+      <div class="value">${fmtHrs(avgG)}</div>
+      <div class="label">Avg gap between feeds</div>
+      <div class="sublabel">Median: ${fmtHrs(medG)}</div>
+    </div>
+    <div class="stat-card card-mint">
+      <div class="accent-dot">🍼</div>
+      <div class="value">${(feeds.length/daySpan).toFixed(1)}</div>
+      <div class="label">Feeds per day</div>
+      <div class="sublabel">${feeds.length} total over ${daySpan} days</div>
+    </div>
+    <div class="stat-card card-sun">
+      <div class="accent-dot">⚡</div>
+      <div class="value">${fmtHrs(minG)}</div>
+      <div class="label">Shortest feed gap</div>
+      <div class="sublabel">Longest: ${fmtHrs(maxG)}</div>
+    </div>
+  `;
+
+  const fHours = Array(24).fill(0);
+  feeds.forEach(f => fHours[f._date.getHours()]++);
+  const peakH  = fHours.indexOf(Math.max(...fHours));
+  const nightF = feeds.filter(f => { const h=f._date.getHours(); return h>=22||h<6; });
+  const dayF   = feeds.filter(f => { const h=f._date.getHours(); return h>=6&&h<22; });
+  const clust  = fg.filter(g=>g<1.5).length;
+
+  document.getElementById('feedInsights').innerHTML = `
+    <div class="chip"><strong>${fmt12(peakH)}</strong>Most common feed hour</div>
+    <div class="chip mint"><strong>${nightF.length}</strong>Night feeds (10pm–6am) · ${(nightF.length/daySpan).toFixed(1)}/night avg</div>
+    <div class="chip sun"><strong>${dayF.length}</strong>Day feeds (6am–10pm) · ${(dayF.length/daySpan).toFixed(1)}/day avg</div>
+    <div class="chip lil"><strong>${clust}</strong>Cluster feeds (gap &lt; 1.5h)</div>
+  `;
+
+  // Per day bar
+  const fbd = {};
+  feeds.forEach(f => { const k=f._date.toLocaleDateString('en-US',{month:'short',day:'numeric'}); fbd[k]=(fbd[k]||0)+1; });
+  const fde = Object.entries(fbd).slice(-10);
+  document.getElementById('feedDayBadge').textContent = `last ${fde.length} days`;
+  const fdm = Math.max(...fde.map(e=>e[1]),1);
+  document.getElementById('feedBarChart').innerHTML = fde.reverse().map(([d,c]) => `
+    <div class="bar-row">
+      <span class="bar-label">${d.split(' ')[1]}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${(c/fdm*100).toFixed(0)}%;background:linear-gradient(90deg,#F2C5BB,#D9856A)"></div></div>
+      <span class="bar-val">${c}</span>
+    </div>`).join('');
+
+  // Heatmap
+  const maxTod = Math.max(...fHours, 1);
+  document.getElementById('todGrid').innerHTML = fHours.map((c,h) => {
+    const op=c/maxTod;
+    const bg=c===0?'var(--cream)':`rgba(217,133,106,${(0.15+op*0.85).toFixed(2)})`;
+    return `<div class="tod-cell" style="background:${bg}" data-tip="${fmt12(h)}: ${c} feed${c!==1?'s':''}"></div>`;
+  }).join('');
+
+  // Histogram
+  const buckets = Array(16).fill(0);
+  fg.forEach(g => { const i=Math.min(Math.floor(g/0.5),15); buckets[i]++; });
+  const bm = Math.max(...buckets, 1);
+  document.getElementById('feedHistogram').innerHTML = buckets.map((c,i) => `
+    <div class="hist-col">
+      <div class="hist-bar" style="height:${(c/bm*100).toFixed(0)}%;background:${c>0?'linear-gradient(180deg,#D9856A,#F2C5BB)':'var(--cream)'}"></div>
+      <span class="hist-x">${i%2===0?`${i/2}h`:''}</span>
+    </div>`).join('');
+
+  // ══════════════════════════════════════
+  // DIAPERS — using parsed End Condition
+  // ══════════════════════════════════════
+  const pee  = diapers.filter(d => d._diaper.type === 'pee');
+  const poo  = diapers.filter(d => d._diaper.type === 'poo');
+  const both = diapers.filter(d => d._diaper.type === 'both');
+  const dTot = diapers.length || 1;
+
+  const dg = gaps(diapers, 12);
+
+  // Count poo events: poo-only + both
+  const pooEvents = poo.length + both.length;
+
+  document.getElementById('diaperStatGrid').innerHTML = `
+    <div class="stat-card card-mint">
+      <div class="accent-dot">⏱</div>
+      <div class="value">${fmtHrs(avg(dg))}</div>
+      <div class="label">Avg gap between diapers</div>
+      <div class="sublabel">Median: ${fmtHrs(med(dg))}</div>
+    </div>
+    <div class="stat-card card-rose">
+      <div class="accent-dot">💧</div>
+      <div class="value">${(pee.length/daySpan).toFixed(1)}</div>
+      <div class="label">Pee-only / day</div>
+      <div class="sublabel">${pee.length} total · ${(pee.length/dTot*100).toFixed(0)}% of all diapers</div>
+    </div>
+    <div class="stat-card card-sun">
+      <div class="accent-dot">💩</div>
+      <div class="value">${(pooEvents/daySpan).toFixed(1)}</div>
+      <div class="label">Poo events / day</div>
+      <div class="sublabel">${poo.length} poo-only + ${both.length} both = ${pooEvents} total</div>
+    </div>
+    <div class="stat-card card-lil">
+      <div class="accent-dot">🔄</div>
+      <div class="value">${(both.length/daySpan).toFixed(1)}</div>
+      <div class="label">Both (pee + poo) / day</div>
+      <div class="sublabel">${both.length} total · ${(both.length/dTot*100).toFixed(0)}% of all diapers</div>
+    </div>
+  `;
+
+  // Size tallies
+  function sizeTally(arr, sizeKey) {
+    const t={small:0,medium:0,large:0};
+    arr.forEach(d => { const s=d._diaper[sizeKey]; if(s&&t[s]!==undefined) t[s]++; });
+    return t;
+  }
+
+  // Pee sizes: pee-only + both (peeSize from both)
+  const peeSizes = {small:0,medium:0,large:0};
+  pee.forEach(d=>{const s=d._diaper.peeSize;if(s&&peeSizes[s]!==undefined)peeSizes[s]++;});
+  both.forEach(d=>{const s=d._diaper.peeSize;if(s&&peeSizes[s]!==undefined)peeSizes[s]++;});
+  const peeSizeTotal = Object.values(peeSizes).reduce((a,b)=>a+b,0)||1;
+
+  // Poo sizes: poo-only + both (pooSize from both)
+  const pooSizes = {small:0,medium:0,large:0};
+  poo.forEach(d=>{const s=d._diaper.pooSize;if(s&&pooSizes[s]!==undefined)pooSizes[s]++;});
+  both.forEach(d=>{const s=d._diaper.pooSize;if(s&&pooSizes[s]!==undefined)pooSizes[s]++;});
+  const pooSizeTotal = Object.values(pooSizes).reduce((a,b)=>a+b,0)||1;
+
+  function sizeGridHTML(sizes, total, color) {
+    return `<div class="size-grid">
+      ${['small','medium','large'].map(sz => `
+        <div class="size-cell">
+          <div class="sz-val" style="color:${color}">${sizes[sz]}</div>
+          <div class="sz-lbl">${sz.charAt(0).toUpperCase()+sz.slice(1)}</div>
+          <div class="sz-lbl">${(sizes[sz]/total*100).toFixed(0)}%</div>
+        </div>`).join('')}
+    </div>`;
+  }
+
+  document.getElementById('peeSizeGrid').innerHTML = sizeGridHTML(peeSizes, peeSizeTotal, '#4A9B7F');
+  document.getElementById('pooSizeGrid').innerHTML  = sizeGridHTML(pooSizes, pooSizeTotal, '#B8902A');
+
+  // Insight chips
+  const dHours = Array(24).fill(0);
+  diapers.forEach(d => dHours[d._date.getHours()]++);
+  const peakDH = dHours.indexOf(Math.max(...dHours));
+  const stoolPct = ((pooEvents)/dTot*100).toFixed(0);
+  const mostCommonPooSize = Object.entries(pooSizes).sort((a,b)=>b[1]-a[1])[0];
+
+  document.getElementById('diaperInsights').innerHTML = `
+    <div class="chip mint"><strong>${fmt12(peakDH)}</strong>Busiest diaper change hour</div>
+    <div class="chip sun"><strong>${stoolPct}%</strong>of diapers contain poo (poo-only + both)</div>
+    <div class="chip"><strong>${(diapers.length/daySpan).toFixed(1)}</strong>Total diapers per day avg</div>
+    <div class="chip lil"><strong>${mostCommonPooSize[0]}</strong>Most common poo size</div>
+  `;
+
+  // Donut
+  const dColors = {pee:'#6BAED6', poo:'#D9856A', both:'#C4B5D4'};
+  const dLabels = {pee:'Pee 💧', poo:'Poo 💩', both:'Both 🔄'};
+  const dtC = {pee:pee.length, poo:poo.length, both:both.length};
+  const R=48,cx=60,cy=60,circ=2*Math.PI*R;
+  let off=0;
+  const segs = Object.entries(dtC).filter(([,v])=>v>0).map(([t,c]) => {
+    const pct=c/dTot, s={t,c,pct,off,dash:pct*circ,gap:(1-pct)*circ};
+    off+=pct*circ; return s;
+  });
+  document.getElementById('diaperDonut').innerHTML = `
+    <div class="donut-wrap">
+      <svg width="120" height="120" viewBox="0 0 120 120" style="flex-shrink:0">
+        <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="var(--cream)" stroke-width="22"/>
+        ${segs.map(s=>`<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${dColors[s.t]}"
+          stroke-width="22" stroke-dasharray="${s.dash} ${s.gap}"
+          stroke-dashoffset="${-s.off+circ/4}"/>`).join('')}
+      </svg>
+      <div class="donut-legend">
+        ${segs.map(s=>`
+          <div class="legend-item">
+            <span class="legend-dot" style="background:${dColors[s.t]}"></span>
+            <span class="legend-name">${dLabels[s.t]}</span>
+            <span class="legend-pct">${(s.pct*100).toFixed(0)}%</span>
+            <span class="legend-cnt">(${s.c})</span>
+          </div>`).join('')}
+      </div>
+    </div>`;
+
+  // Per day bar
+  const dbd = {};
+  diapers.forEach(d => { const k=d._date.toLocaleDateString('en-US',{month:'short',day:'numeric'}); dbd[k]=(dbd[k]||0)+1; });
+  const dde = Object.entries(dbd).slice(-10);
+  document.getElementById('diaperDayBadge').textContent = `last ${dde.length} days`;
+  const ddm = Math.max(...dde.map(e=>e[1]),1);
+  document.getElementById('diaperBarChart').innerHTML = dde.reverse().map(([d,c]) => `
+    <div class="bar-row">
+      <span class="bar-label">${d.split(' ')[1]}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${(c/ddm*100).toFixed(0)}%;background:linear-gradient(90deg,#A8C5B5,#4A9B7F)"></div></div>
+      <span class="bar-val">${c}</span>
+    </div>`).join('');
+
+  // Stacked by day
+  const dbdt = {};
+  diapers.forEach(d => {
+    const k = d._date.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    if (!dbdt[k]) dbdt[k]={pee:0,poo:0,both:0};
+    dbdt[k][d._diaper.type] = (dbdt[k][d._diaper.type]||0)+1;
+  });
+  const ste = Object.entries(dbdt).slice(-10);
+  const stm = Math.max(...ste.map(([,v])=>v.pee+v.poo+v.both),1);
+  document.getElementById('diaperStackedChart').innerHTML = ste.reverse().map(([day,ty]) => {
+    const tot = ty.pee+ty.poo+ty.both;
+    return `<div class="stacked-row">
+      <span class="stacked-label">${day.split(' ')[1]}</span>
+      <div class="stacked-track">
+        ${ty.pee  ? `<div class="stacked-seg" style="width:${(ty.pee/stm*100).toFixed(1)}%;background:#6BAED6" title="Pee: ${ty.pee}"></div>` : ''}
+        ${ty.poo  ? `<div class="stacked-seg" style="width:${(ty.poo/stm*100).toFixed(1)}%;background:#D9856A" title="Poo: ${ty.poo}"></div>` : ''}
+        ${ty.both ? `<div class="stacked-seg" style="width:${(ty.both/stm*100).toFixed(1)}%;background:#C4B5D4" title="Both: ${ty.both}"></div>` : ''}
+      </div>
+      <span class="stacked-total">${tot}</span>
+    </div>`;
+  }).join('');
+}
+
+function showError(msg) {
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  document.getElementById('errorMsg').innerHTML = `<div class="error-msg">⚠️ ${msg}</div>`;
+}
+</script>
+<script id="embedded-csv" type="text/csv">
+</script>
+<script>
+// Auto-load embedded CSV data on page load
+window.addEventListener('DOMContentLoaded', function() {
+  fetch('huckleberry_data.csv')
+    .then(r => r.text())
+    .then(text => processData(text))
+    .catch(() => {});
+});
+</script>
+</body>
+</html>

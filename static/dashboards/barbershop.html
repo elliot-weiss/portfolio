@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FadeMaster — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#faf8ff;--surface:#ffffff;--surface2:#f5f3ff;--border:#ddd6fe;--gold:#7c3aed;--gold-dim:#5b21b6;--red:#dc2626;--green:#059669;--text:#1e1b4b;--muted:#8b5cf6;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;}
+
+  /* ── LOGIN ── */
+  #loginScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,#ede9fe 0%,#faf8ff 70%);}
+  .login-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:48px 40px;width:360px;text-align:center;}
+  .login-scissors{font-size:36px;transform:rotate(-45deg);display:inline-block;margin-bottom:16px;}
+  .login-title{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:3px;color:var(--gold);margin-bottom:4px;}
+  .login-sub{font-size:12px;color:var(--muted);letter-spacing:2px;font-family:'DM Mono',monospace;margin-bottom:32px;}
+  .login-label{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;font-family:'DM Mono',monospace;display:block;text-align:left;margin-bottom:8px;}
+  .login-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;margin-bottom:20px;text-align:center;letter-spacing:4px;}
+  .login-input:focus{border-color:var(--gold-dim);}
+  .login-btn{width:100%;background:var(--gold);color:#0d0d0d;border:none;padding:13px;border-radius:8px;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;}
+  .login-btn:hover{background:#e0bb60;}
+  .login-error{color:var(--red);font-size:12px;margin-top:12px;min-height:18px;font-family:'DM Mono',monospace;}
+  .login-hint{font-size:11px;color:var(--muted);margin-top:20px;font-family:'DM Mono',monospace;}
+
+  /* ── APP ── */
+  #app{display:none;}
+  #app.visible{display:grid;grid-template-columns:240px 1fr;grid-template-rows:auto 1fr;min-height:100vh;}
+
+  aside{grid-row:1/3;background:var(--surface);border-right:1px solid var(--border);padding:32px 0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;}
+  .logo{padding:0 28px 32px;border-bottom:1px solid var(--border);margin-bottom:24px;}
+  .logo-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:var(--gold);line-height:1;}
+  .logo-sub{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:4px;font-family:'DM Mono',monospace;}
+  nav a{display:flex;align-items:center;gap:12px;padding:12px 28px;color:var(--muted);text-decoration:none;font-size:13px;font-weight:500;letter-spacing:.5px;transition:all .2s;border-left:2px solid transparent;cursor:pointer;}
+  nav a:hover,nav a.active{color:var(--text);border-left-color:var(--gold);background:rgba(201,168,76,.06);}
+  nav a.active{color:var(--gold);}
+  nav .nav-icon{font-size:16px;width:20px;text-align:center;}
+  .sidebar-footer{margin-top:auto;padding:24px 28px 0;border-top:1px solid var(--border);font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
+  .status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:6px;animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+  header{background:var(--surface);border-bottom:1px solid var(--border);padding:20px 36px;display:flex;align-items:center;justify-content:space-between;}
+  .header-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;}
+  .header-date{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);}
+  .open-toggle{display:flex;align-items:center;gap:10px;cursor:pointer;}
+  .toggle-label{font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;}
+  .toggle-switch{width:44px;height:24px;background:var(--border);border-radius:12px;position:relative;transition:background .3s;cursor:pointer;}
+  .toggle-switch.on{background:var(--green);}
+  .toggle-switch::after{content:'';position:absolute;width:18px;height:18px;background:white;border-radius:50%;top:3px;left:3px;transition:transform .3s;}
+  .toggle-switch.on::after{transform:translateX(20px);}
+
+  main{padding:36px;overflow-y:auto;}
+  .panel{display:none;}.panel.active{display:block;}
+
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px;}
+  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;position:relative;overflow:hidden;transition:border-color .2s;}
+  .stat-card:hover{border-color:var(--gold-dim);}
+  .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gold);opacity:.6;}
+  .stat-label{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:10px;}
+  .stat-value{font-family:'Bebas Neue',sans-serif;font-size:42px;line-height:1;color:var(--gold);}
+  .stat-sub{font-size:11px;color:var(--muted);margin-top:6px;}
+  .stat-icon{position:absolute;top:18px;right:18px;font-size:24px;opacity:.15;}
+
+  .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+  .section-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;}
+  .btn{background:var(--gold);color:#0d0d0d;border:none;padding:8px 18px;border-radius:6px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;}
+  .btn:hover{background:#e0bb60;transform:translateY(-1px);}
+  .btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 14px;border-radius:6px;font-size:11px;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;}
+  .btn-outline:hover{border-color:var(--gold-dim);color:var(--text);}
+  .btn-red{background:var(--red);color:white;border:none;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+  .btn-red:hover{background:#f06060;}
+  .btn-sm{padding:5px 10px;font-size:10px;}
+
+  .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  table{width:100%;border-collapse:collapse;}
+  thead th{padding:14px 20px;text-align:left;font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;font-family:'DM Mono',monospace;border-bottom:1px solid var(--border);background:var(--surface2);}
+  tbody tr{border-bottom:1px solid var(--border);transition:background .15s;}
+  tbody tr:last-child{border-bottom:none;}
+  tbody tr:hover{background:rgba(255,255,255,.02);}
+  td{padding:14px 20px;font-size:13px;}
+
+  .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;font-family:'DM Mono',monospace;}
+  .badge-green{background:rgba(82,201,122,.15);color:var(--green);}
+  .badge-yellow{background:rgba(201,168,76,.15);color:var(--gold);}
+  .badge-red{background:rgba(224,82,82,.15);color:var(--red);}
+  .badge-gray{background:rgba(102,102,102,.15);color:var(--muted);}
+  .badge-blue{background:rgba(82,140,201,.15);color:#82b0e0;}
+
+  .schedule-grid{display:grid;grid-template-columns:80px repeat(6,1fr);gap:2px;background:var(--border);border-radius:10px;overflow:hidden;}
+  .sched-cell{background:var(--surface);padding:10px;font-size:11px;text-align:center;cursor:pointer;transition:all .15s;min-height:44px;display:flex;align-items:center;justify-content:center;}
+  .sched-cell.header{background:var(--surface2);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);cursor:default;}
+  .sched-cell.time-label{background:var(--surface2);font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);cursor:default;}
+  .sched-cell.open{background:rgba(82,201,122,.08);}
+  .sched-cell.open:hover{background:rgba(82,201,122,.2);}
+  .sched-cell.booked{background:rgba(201,168,76,.12);color:var(--gold);font-weight:600;}
+  .sched-cell.closed{background:rgba(102,102,102,.05);color:var(--border);cursor:default;}
+
+  .price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px;}
+  .price-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;transition:all .2s;position:relative;}
+  .price-card:hover{border-color:var(--gold-dim);}
+  .price-card.featured{border-color:var(--gold-dim);background:linear-gradient(135deg,rgba(201,168,76,.05),var(--surface));}
+  .price-card.featured::after{content:'POPULAR';position:absolute;top:-1px;right:16px;background:var(--gold);color:#0d0d0d;font-size:9px;font-weight:700;letter-spacing:2px;padding:3px 8px;border-radius:0 0 6px 6px;font-family:'DM Mono',monospace;}
+  .price-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;margin-bottom:6px;}
+  .price-desc{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.5;}
+  .price-amount{font-family:'Bebas Neue',sans-serif;font-size:44px;color:var(--gold);line-height:1;}
+  .price-amount span{font-family:'DM Sans',sans-serif;font-size:16px;color:var(--muted);font-weight:400;}
+  .price-duration{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px;}
+  .price-actions{display:flex;gap:8px;margin-top:18px;padding-top:18px;border-top:1px solid var(--border);}
+
+  .input{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;width:100%;}
+  .input:focus{border-color:var(--gold-dim);}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+  .form-group{display:flex;flex-direction:column;gap:6px;}
+  .form-label{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;font-family:'DM Mono',monospace;}
+
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;backdrop-filter:blur(4px);align-items:center;justify-content:center;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;width:480px;max-width:90vw;max-height:90vh;overflow-y:auto;}
+  .modal-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;margin-bottom:24px;color:var(--gold);}
+
+  .wait-display{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:32px;text-align:center;margin-bottom:24px;}
+  .wait-number{font-family:'Bebas Neue',sans-serif;font-size:96px;line-height:1;color:var(--gold);}
+  .wait-unit{font-size:14px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);font-family:'DM Mono',monospace;margin-top:-8px;}
+  .wait-slider-wrap{padding:24px;background:var(--surface);border:1px solid var(--border);border-radius:12px;}
+  input[type="range"]{width:100%;accent-color:var(--gold);cursor:pointer;}
+  .wait-presets{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  .revenue-row{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--border);}
+  .revenue-row:last-child{border-bottom:none;}
+
+  .toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--gold-dim);border-radius:10px;padding:14px 20px;font-size:13px;z-index:999;transform:translateY(80px);opacity:0;transition:all .3s;pointer-events:none;}
+  .toast.show{transform:translateY(0);opacity:1;}
+
+  .bar-chart{display:flex;align-items:flex-end;gap:8px;height:120px;padding:12px 20px 0;}
+  .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end;}
+  .bar{width:100%;background:linear-gradient(to top,var(--gold),var(--gold-dim));border-radius:4px 4px 0 0;min-height:4px;}
+  .bar-label{font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;}
+
+  select.input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+  .save-badge{font-size:10px;color:var(--green);font-family:'DM Mono',monospace;opacity:0;transition:opacity .5s;}
+  .save-badge.show{opacity:1;}
+  .sync-badge{font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);}
+  .sync-badge.syncing{color:var(--gold);}
+  .sync-badge.synced{color:var(--green);}
+  .new-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-left:6px;animation:pulse 1.5s infinite;}
+</style>
+</head>
+<body>
+
+<!--
+  SETUP INSTRUCTIONS (one-time, then delete this comment):
+  1. Go to jsonbin.io → create a free account
+  2. Sidebar → "API Keys" → copy your Master Key
+  3. Sidebar → "Bins" → "Create Bin" → paste {} → Save → copy the Bin ID
+  4. Paste both values into JSONBIN_API_KEY and JSONBIN_BIN_ID below (in the <script> section)
+  5. Do the same in booking.html
+  6. Upload both files to netlify.com/drop — done!
+-->
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-scissors">✂️</div>
+    <div class="login-title">FadeMaster</div>
+    <div class="login-sub">Barber Dashboard</div>
+    <label class="login-label">Password</label>
+    <input class="login-input" type="password" id="pwInput" placeholder="••••••••" onkeydown="if(event.key==='Enter')tryLogin()"/>
+    <button class="login-btn" onclick="tryLogin()">Enter Dashboard</button>
+    <div class="login-error" id="loginError"></div>
+    <div class="login-hint">Default password: <strong style="color:var(--gold)">barber</strong></div>  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <aside>
+    <div class="logo">
+      <div style="font-size:22px;transform:rotate(-45deg);display:inline-block;margin-bottom:8px">✂️</div>
+      <div class="logo-title" id="shopNameDisplay">FadeMaster</div>
+      <div class="logo-sub">Barber Dashboard</div>
+    </div>
+    <nav>
+      <a class="active" onclick="showPanel('overview',this)"><span class="nav-icon">⚡</span> Overview</a>
+      <a onclick="showPanel('bookings',this)" id="navBookings"><span class="nav-icon">📋</span> All Bookings</a>
+      <a onclick="showPanel('schedule',this)"><span class="nav-icon">📅</span> Schedule</a>
+      <a onclick="showPanel('clients',this)"><span class="nav-icon">👤</span> Clients</a>
+      <a onclick="showPanel('prices',this)"><span class="nav-icon">💰</span> Services & Prices</a>
+      <a onclick="showPanel('waittime',this)"><span class="nav-icon">⏱</span> Wait Time</a>
+      <a onclick="showPanel('analytics',this)"><span class="nav-icon">📊</span> Analytics</a>
+      <a onclick="showPanel('payment',this)"><span class="nav-icon">💳</span> Payment</a>
+      <a onclick="showPanel('settings',this)"><span class="nav-icon">⚙️</span> Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div id="sidebarStatus"><span class="status-dot"></span>Shop Open</div>
+      <div style="margin-top:6px;font-size:10px" id="sidebarTime"></div>
+      <div style="margin-top:6px"><span class="sync-badge" id="syncBadge">⬤ Local only</span></div>
+      <div style="margin-top:12px"><a onclick="logout()" style="color:var(--muted);cursor:pointer;font-size:10px;letter-spacing:1px">⎋ Log Out</a></div>
+    </div>
+  </aside>
+
+  <header>
+    <div>
+      <div class="header-title" id="headerTitle">Overview</div>
+      <div class="header-date" id="headerDate"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:20px">
+      <span class="save-badge" id="saveBadge">💾 Saved</span>
+      <div class="open-toggle" onclick="toggleShop()">
+        <div class="toggle-label" id="shopStatus" style="color:var(--green)">Open</div>
+        <div class="toggle-switch on" id="shopToggle"></div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- OVERVIEW -->
+    <div class="panel active" id="panel-overview">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-label">Today's Appointments</div><div class="stat-value" id="stat-appts">0</div><div class="stat-sub" id="stat-appts-sub">none booked</div></div>
+        <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-label">Current Wait</div><div class="stat-value" id="stat-wait">0</div><div class="stat-sub">minutes</div></div>
+        <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-label">Total Clients</div><div class="stat-value" id="stat-clients">0</div><div class="stat-sub">in your book</div></div>
+        <div class="stat-card"><div class="stat-icon">🌐</div><div class="stat-label">Online Bookings</div><div class="stat-value" id="stat-online">0</div><div class="stat-sub">via booking page</div></div>
+      </div>
+      <div class="two-col" style="margin-bottom:24px">
+        <div>
+          <div class="section-header">
+            <div class="section-title">Today's Queue</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button class="btn-outline btn-sm" onclick="refreshData()" id="refreshBtn">↻ Refresh</button>
+              <button class="btn" onclick="openBookingModal()">+ Add</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table><thead><tr><th>Client</th><th>Service</th><th>Time</th><th>Source</th><th>Status</th><th></th></tr></thead>
+            <tbody id="todayQueue"></tbody></table>
+          </div>
+        </div>
+        <div>
+          <div class="section-header"><div class="section-title">This Week</div></div>
+          <div class="table-wrap" style="padding-bottom:16px">
+            <div class="bar-chart" id="weekChart"></div>
+            <div style="padding:16px 20px 0;border-top:1px solid var(--border);margin-top:16px">
+              <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted)">
+                <span>Appointments this week</span>
+                <strong style="color:var(--gold);font-family:'Bebas Neue';font-size:18px" id="weeklyAppts">0</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALL BOOKINGS -->
+    <div class="panel" id="panel-bookings">
+      <div class="section-header">
+        <div class="section-title">All Bookings</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <select class="input" style="width:150px" id="bookingFilter" onchange="renderAllBookings()">
+            <option value="all">All dates</option>
+            <option value="today">Today</option>
+            <option value="upcoming">Upcoming</option>
+            <option value="past">Past</option>
+          </select>
+          <button class="btn" onclick="openBookingModal()">+ Add</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Client</th><th>Service</th><th>Date</th><th>Time</th><th>Price</th><th>Source</th><th>Status</th><th></th></tr></thead>
+        <tbody id="allBookingsTable"></tbody></table>
+      </div>
+    </div>
+
+    <!-- SCHEDULE -->
+    <div class="panel" id="panel-schedule">
+      <div class="section-header">
+        <div class="section-title">Weekly Schedule</div>
+        <button class="btn" onclick="openBookingModal()">+ Book</button>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:16px;font-family:'DM Mono',monospace;">Click a slot to block it from the public booking page.</p>
+      <div class="schedule-grid" id="scheduleGrid"></div>
+      <div style="margin-top:16px;display:flex;gap:16px;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;">
+        <span style="color:var(--green)">■</span> Open &nbsp;<span style="color:var(--gold)">■</span> Blocked &nbsp;<span style="color:var(--border)">■</span> Closed
+      </div>
+    </div>
+
+    <!-- CLIENTS -->
+    <div class="panel" id="panel-clients">
+      <div class="section-header">
+        <div class="section-title">Client List</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input class="input" style="width:200px" placeholder="Search..." oninput="filterClients(this.value)">
+          <button class="btn" onclick="openClientModal()">+ Add</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Name</th><th>Phone</th><th>Preferred Cut</th><th>Last Visit</th><th>Visits</th><th>Notes</th><th></th></tr></thead>
+        <tbody id="clientTable"></tbody></table>
+      </div>
+    </div>
+
+    <!-- PRICES -->
+    <div class="panel" id="panel-prices">
+      <div class="section-header">
+        <div class="section-title">Services & Pricing</div>
+        <button class="btn" onclick="openPriceModal()">+ Add Service</button>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:20px;font-family:'DM Mono',monospace;">These services appear live on your public booking page.</p>
+      <div class="price-grid" id="priceGrid"></div>
+    </div>
+
+    <!-- WAIT TIME -->
+    <div class="panel" id="panel-waittime">
+      <div class="section-header"><div class="section-title">Wait Time</div></div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:20px;font-family:'DM Mono',monospace;">Shown live on your public booking page. Save to update it.</p>
+      <div class="two-col">
+        <div>
+          <div class="wait-display">
+            <div class="wait-number" id="waitDisplay">0</div>
+            <div class="wait-unit">Minutes Estimated Wait</div>
+          </div>
+          <div class="wait-slider-wrap">
+            <div class="form-label" style="margin-bottom:12px">Adjust</div>
+            <input type="range" min="0" max="120" value="0" id="waitSlider" oninput="updateWait(this.value)">
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px"><span>0</span><span>60 min</span><span>120 min</span></div>
+            <div class="wait-presets">
+              <button class="btn-outline" onclick="setWait(0)">None</button>
+              <button class="btn-outline" onclick="setWait(15)">15 min</button>
+              <button class="btn-outline" onclick="setWait(30)">30 min</button>
+              <button class="btn-outline" onclick="setWait(45)">45 min</button>
+              <button class="btn-outline" onclick="setWait(60)">1 hr</button>
+              <button class="btn-outline" onclick="setWait(90)">90 min</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="section-title" style="margin-bottom:16px;font-size:16px">Queue Status</div>
+          <div class="table-wrap" id="queueStatus"></div>
+          <div style="margin-top:16px"><button class="btn" style="width:100%" onclick="saveWait()">💾 Save & Publish Wait Time</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div class="panel" id="panel-analytics">
+      <div class="section-header"><div class="section-title">Analytics</div></div>
+      <div class="stats-grid" style="margin-bottom:28px">
+        <div class="stat-card"><div class="stat-label">All-Time Revenue</div><div class="stat-value" id="ana-rev">$0</div><div class="stat-sub">completed cuts</div></div>
+        <div class="stat-card"><div class="stat-label">Today's Revenue</div><div class="stat-value" id="ana-today">$0</div><div class="stat-sub" id="ana-today-sub">0 done today</div></div>
+        <div class="stat-card"><div class="stat-label">Avg per Cut</div><div class="stat-value" id="ana-avg">$0</div><div class="stat-sub">all services</div></div>
+        <div class="stat-card"><div class="stat-label">No-Shows</div><div class="stat-value" id="ana-noshow">0</div><div class="stat-sub">total recorded</div></div>
+      </div>
+      <div class="two-col">
+        <div>
+          <div class="section-title" style="margin-bottom:16px;font-size:16px">Revenue by Service</div>
+          <div class="table-wrap" id="revenueByService"></div>
+        </div>
+        <div>
+          <div class="section-title" style="margin-bottom:16px;font-size:16px">Top Clients</div>
+          <div class="table-wrap" id="topClients"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAYMENT -->
+    <div class="panel" id="panel-payment">
+      <div class="section-header"><div class="section-title">Payment Settings</div></div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:24px;font-family:'DM Mono',monospace">Your Venmo QR code will be shown to clients on their booking confirmation screen.</p>
+      <div class="two-col">
+        <div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px">
+            <div class="section-title" style="font-size:16px;margin-bottom:16px">Venmo QR Code</div>
+            <div id="qrPreviewWrap" style="display:none;margin-bottom:16px;text-align:center">
+              <img id="qrPreview" style="max-width:200px;border-radius:12px;border:1px solid var(--border)" />
+              <div style="font-size:11px;color:var(--green);margin-top:8px;font-family:'DM Mono',monospace">✓ QR code uploaded</div>
+            </div>
+            <div id="qrPlaceholder" style="border:2px dashed var(--border);border-radius:12px;padding:32px;text-align:center;margin-bottom:16px;cursor:pointer" onclick="document.getElementById('qrFileInput').click()">
+              <div style="font-size:32px;margin-bottom:8px">📱</div>
+              <div style="font-size:13px;color:var(--muted)">Click to upload your Venmo QR code</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:4px;font-family:'DM Mono',monospace">PNG or JPG, screenshot from Venmo app</div>
+            </div>
+            <input type="file" id="qrFileInput" accept="image/*" style="display:none" onchange="handleQrUpload(this)">
+            <button class="btn-outline" style="width:100%" onclick="document.getElementById('qrFileInput').click()">📤 Upload / Replace QR Code</button>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px">
+            <div class="section-title" style="font-size:16px;margin-bottom:8px">Venmo Username</div>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Optional — shown as a direct link alongside the QR code.</p>
+            <div class="form-group" style="margin-bottom:16px">
+              <label class="form-label">Venmo @ Username</label>
+              <input class="input" id="venmoUsername" placeholder="@yourname"/>
+            </div>
+            <button class="btn" onclick="savePaymentSettings()">Save Payment Settings</button>
+          </div>
+        </div>
+        <div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px">
+            <div class="section-title" style="font-size:16px;margin-bottom:16px">Preview</div>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:20px">This is what clients will see after booking.</p>
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:24px;text-align:center">
+              <div style="font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:8px">Pay Before You Arrive</div>
+              <div id="previewQr" style="margin:16px auto;display:none"><img id="previewQrImg" style="max-width:160px;border-radius:10px;border:1px solid var(--border)"/></div>
+              <div id="previewNoQr" style="color:var(--muted);font-size:12px;padding:20px 0">No QR code uploaded yet</div>
+              <div id="previewUsername" style="display:none;margin-top:12px">
+                <a id="previewVenmoLink" style="color:var(--gold);font-size:13px;font-family:'DM Mono',monospace;text-decoration:none" target="_blank"></a>
+              </div>
+              <div style="font-size:11px;color:var(--muted);margin-top:16px">Scan with your phone camera to pay via Venmo</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="panel" id="panel-settings">
+      <div class="section-header"><div class="section-title">Settings</div></div>
+      <div class="two-col">
+        <div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px">
+            <div class="section-title" style="font-size:16px;margin-bottom:4px">Shop Info</div>
+            <p style="font-size:11px;color:var(--muted);margin-bottom:20px;font-family:'DM Mono',monospace">Shown on your public booking page</p>
+            <div class="form-group" style="margin-bottom:14px"><label class="form-label">Barber Name</label><input class="input" id="set-barber"/></div>
+            <div class="form-group" style="margin-bottom:14px"><label class="form-label">Shop Name</label><input class="input" id="set-shop"/></div>
+            <div class="form-group" style="margin-bottom:14px"><label class="form-label">Phone</label><input class="input" id="set-phone"/></div>
+            <div class="form-group" style="margin-bottom:20px"><label class="form-label">Address</label><input class="input" id="set-address"/></div>
+            <button class="btn" onclick="saveSettings()">Save Info</button>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px">
+            <div class="section-title" style="font-size:16px;margin-bottom:8px">Data</div>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Auto-saves to cloud. Export for a manual backup.</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn-outline" onclick="exportData()">📤 Export Backup</button>
+              <button class="btn-red" onclick="clearAllData()">🗑 Clear All</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px">
+            <div class="section-title" style="font-size:16px;margin-bottom:20px">Working Hours</div>
+            <div id="hoursGrid"></div>
+            <button class="btn" style="margin-top:16px" onclick="saveHours()">Save Hours</button>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px">
+            <div class="section-title" style="font-size:16px;margin-bottom:8px">Change Password</div>
+            <div class="form-group" style="margin-bottom:12px"><label class="form-label">New Password</label><input class="input" type="password" id="newPw"/></div>
+            <div class="form-group" style="margin-bottom:16px"><label class="form-label">Confirm</label><input class="input" type="password" id="confirmPw"/></div>
+            <button class="btn-outline" onclick="changePassword()">Update Password</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="bookingModal">
+  <div class="modal">
+    <div class="modal-title">Add Appointment</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Client Name</label><input class="input" id="bookName"/></div>
+      <div class="form-group"><label class="form-label">Phone</label><input class="input" id="bookPhone"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Service</label><select class="input" id="bookService"></select></div>
+      <div class="form-group"><label class="form-label">Price ($)</label><input class="input" type="number" id="bookPrice"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Date</label><input class="input" type="date" id="bookDate"/></div>
+      <div class="form-group"><label class="form-label">Time</label><input class="input" type="time" id="bookTime" value="10:00"/></div>
+    </div>
+    <div class="form-group" style="margin-bottom:20px"><label class="form-label">Notes</label><input class="input" id="bookNotes"/></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn" onclick="submitBooking()">Confirm</button>
+      <button class="btn-outline" onclick="closeModal('bookingModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="clientModal">
+  <div class="modal">
+    <div class="modal-title">Add Client</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Full Name</label><input class="input" id="clientName"/></div>
+      <div class="form-group"><label class="form-label">Phone</label><input class="input" id="clientPhone"/></div>
+    </div>
+    <div class="form-group" style="margin-bottom:14px"><label class="form-label">Preferred Cut</label><input class="input" id="clientCut"/></div>
+    <div class="form-group" style="margin-bottom:20px"><label class="form-label">Notes</label><input class="input" id="clientNotes"/></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn" onclick="submitClient()">Add</button>
+      <button class="btn-outline" onclick="closeModal('clientModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="priceModal">
+  <div class="modal">
+    <div class="modal-title">Add Service</div>
+    <div class="form-group" style="margin-bottom:14px"><label class="form-label">Name</label><input class="input" id="priceServiceName"/></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Price ($)</label><input class="input" type="number" id="priceAmount"/></div>
+      <div class="form-group"><label class="form-label">Duration (min)</label><input class="input" type="number" id="priceDuration"/></div>
+    </div>
+    <div class="form-group" style="margin-bottom:20px"><label class="form-label">Description</label><input class="input" id="priceDesc"/></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn" onclick="submitPrice()">Add</button>
+      <button class="btn-outline" onclick="closeModal('priceModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="editApptModal">
+  <div class="modal">
+    <div class="modal-title">Update Appointment</div>
+    <input type="hidden" id="editApptId"/>
+    <div class="form-group" style="margin-bottom:16px">
+      <label class="form-label">Status</label>
+      <select class="input" id="editApptStatus">
+        <option value="upcoming">Upcoming</option>
+        <option value="waiting">Waiting</option>
+        <option value="inchair">In Chair</option>
+        <option value="done">Done ✓</option>
+        <option value="noshow">No Show</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom:20px"><label class="form-label">Notes</label><input class="input" id="editApptNotes"/></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn" onclick="saveApptEdit()">Save</button>
+      <button class="btn-outline" onclick="closeModal('editApptModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="editServiceModal">
+  <div class="modal">
+    <div class="modal-title">Edit Service</div>
+    <input type="hidden" id="editServiceId"/>
+    <div class="form-group" style="margin-bottom:14px"><label class="form-label">Service Name</label><input class="input" id="editServiceName"/></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Price ($)</label><input class="input" type="number" id="editServicePrice"/></div>
+      <div class="form-group"><label class="form-label">Duration (min)</label><input class="input" type="number" id="editServiceDuration"/></div>
+    </div>
+    <div class="form-group" style="margin-bottom:20px"><label class="form-label">Description</label><input class="input" id="editServiceDesc"/></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn" onclick="saveServiceEdit()">Save Changes</button>
+      <button class="btn-outline" onclick="closeModal('editServiceModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  CONFIG — paste your values here (same as booking.html)
+// ══════════════════════════════════════════════════════════════
+const JSONBIN_API_KEY = '';   // paste Master Key here
+const JSONBIN_BIN_ID  = '';   // paste Bin ID here
+// ══════════════════════════════════════════════════════════════
+
+const JSONBIN_BASE='https://api.jsonbin.io/v3/b';
+const LOCAL_KEY='fademaster_v2';
+const PW_KEY='fademaster_pw';
+
+const DEFAULTS={
+  shopOpen:true,waitTime:0,
+  settings:{barber:'',shop:'FadeMaster Cuts',phone:'',address:''},
+  hours:{Monday:'—',Tuesday:'9AM–6PM',Wednesday:'9AM–6PM',Thursday:'9AM–6PM',Friday:'9AM–7PM',Saturday:'9AM–7PM',Sunday:'10AM–4PM'},
+  clients:[],appointments:[],
+  services:[
+    {id:1,name:'Buzz Cut',price:20,duration:15,desc:'Clean all-over cut with clippers.',featured:false},
+    {id:2,name:'Fade + Line Up',price:35,duration:35,desc:'High, mid, or low fade with crisp lineup.',featured:true},
+    {id:3,name:'Full Cut',price:40,duration:45,desc:'Scissor + clippers full cut.',featured:false},
+    {id:4,name:'Beard Trim',price:20,duration:20,desc:'Shape, edge, and clean up the beard.',featured:false},
+    {id:5,name:'Fade + Beard',price:50,duration:50,desc:'Fade cut combined with full beard cleanup.',featured:false},
+    {id:6,name:'Design / Part',price:10,duration:10,desc:'Custom razored design or hard part add-on.',featured:false},
+  ],
+  schedule:{},nextId:100,
+  payment:{venmoQr:'',venmoUsername:''}
+};
+
+function isConfigured(){return JSONBIN_API_KEY.length>0&&JSONBIN_BIN_ID.length>0;}
+function merge(d){return{...DEFAULTS,...d,settings:{...DEFAULTS.settings,...(d.settings||{})},hours:{...DEFAULTS.hours,...(d.hours||{})},payment:{...DEFAULTS.payment,...(d.payment||{})}};}
+
+async function loadData(){
+  setSyncBadge('syncing','⬤ Syncing...');
+  let local=null;
+  try{const r=localStorage.getItem(LOCAL_KEY);if(r)local=merge(JSON.parse(r));}catch(e){}
+  if(!isConfigured()){setSyncBadge('','⬤ Local only');return local||merge({});}
+  try{
+    const res=await fetch(`${JSONBIN_BASE}/${JSONBIN_BIN_ID}/latest`,{headers:{'X-Master-Key':JSONBIN_API_KEY}});
+    if(res.ok){
+      const cloud=merge((await res.json()).record);
+      const out=(!local||cloud.nextId>=local.nextId)?cloud:local;
+      localStorage.setItem(LOCAL_KEY,JSON.stringify(out));
+      setSyncBadge('synced','⬤ Cloud synced');
+      return out;
+    }
+  }catch(e){}
+  setSyncBadge('','⬤ Local only');
+  return local||merge({});
+}
+
+async function saveData(s){
+  localStorage.setItem(LOCAL_KEY,JSON.stringify(s));
+  const b=document.getElementById('saveBadge');b.classList.add('show');setTimeout(()=>b.classList.remove('show'),1500);
+  if(!isConfigured()) return;
+  setSyncBadge('syncing','⬤ Saving...');
+  try{
+    await fetch(`${JSONBIN_BASE}/${JSONBIN_BIN_ID}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_API_KEY},body:JSON.stringify(s)});
+    setSyncBadge('synced','⬤ Cloud synced');
+  }catch(e){setSyncBadge('','⬤ Save failed');}
+}
+
+function setSyncBadge(cls,txt){
+  const b=document.getElementById('syncBadge');
+  if(b){b.className='sync-badge'+(cls?' '+cls:'');b.textContent=txt;}
+}
+
+let S=merge({});
+
+// ── AUTH ──────────────────────────────────────────────────────
+function tryLogin(){
+  const pw=document.getElementById('pwInput').value;
+  const stored=localStorage.getItem(PW_KEY)||'barber';
+  if(pw===stored){
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('app').classList.add('visible');
+    bootApp();
+  } else {
+    const err=document.getElementById('loginError');
+    err.textContent='Incorrect password.';
+    document.getElementById('pwInput').value='';
+    setTimeout(()=>err.textContent='',3000);
+  }
+}
+function logout(){
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('pwInput').value='';
+}
+function changePassword(){
+  const np=document.getElementById('newPw').value.trim();
+  const cp=document.getElementById('confirmPw').value.trim();
+  if(!np){toast('Enter a new password');return;}
+  if(np!==cp){toast('❌ Passwords do not match');return;}
+  if(np.length<4){toast('Must be at least 4 characters');return;}
+  localStorage.setItem(PW_KEY,np);
+  document.getElementById('newPw').value='';
+  document.getElementById('confirmPw').value='';
+  toast('🔒 Password updated!');
+}
+
+// ── BOOT ──────────────────────────────────────────────────────
+async function bootApp(){
+  S=await loadData();
+  const now=new Date();
+  document.getElementById('headerDate').textContent=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  document.getElementById('bookDate').value=now.toISOString().split('T')[0];
+  tick(); setInterval(tick,30000);
+  // Poll for new online bookings every 30s
+  setInterval(async()=>{S=await loadData();renderQueue();renderAllBookings();updateStats();},30000);
+  applyShopStatus();applyWaitTime();applySettings();
+  renderQueue();renderAllBookings();renderClients();renderServices();
+  renderSchedule();renderHoursGrid();renderWeekChart();renderQueueStatus();updateStats();
+  populateServiceDropdown();
+}
+
+async function refreshData(){
+  const btn=document.getElementById('refreshBtn');
+  btn.textContent='↻ Syncing...';btn.disabled=true;
+  S=await loadData();
+  renderQueue();renderAllBookings();renderClients();updateStats();renderWeekChart();
+  btn.textContent='↻ Refresh';btn.disabled=false;
+  toast('✅ Data refreshed!');
+}
+
+function tick(){document.getElementById('sidebarTime').textContent=new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});}
+
+// ── NAV ───────────────────────────────────────────────────────
+function showPanel(id,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('nav a').forEach(a=>a.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  el.classList.add('active');
+  const T={overview:'Overview',bookings:'All Bookings',schedule:'Schedule',clients:'Clients',prices:'Services & Pricing',waittime:'Wait Time',analytics:'Analytics',payment:'Payment',settings:'Settings'};
+  document.getElementById('headerTitle').textContent=T[id]||id;
+  if(id==='analytics'){S=merge(S);renderAnalytics();}
+  if(id==='waittime') renderQueueStatus();
+  if(id==='bookings') renderAllBookings();
+  if(id==='payment')  renderPaymentPanel();
+}
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
+
+// ── SHOP ──────────────────────────────────────────────────────
+async function toggleShop(){S.shopOpen=!S.shopOpen;await saveData(S);applyShopStatus();toast(S.shopOpen?'🟢 Open':'🔴 Closed');}
+function applyShopStatus(){
+  const o=S.shopOpen;
+  document.getElementById('shopToggle').classList.toggle('on',o);
+  const s=document.getElementById('shopStatus');s.textContent=o?'Open':'Closed';s.style.color=o?'var(--green)':'var(--red)';
+  document.getElementById('sidebarStatus').innerHTML=`<span class="status-dot" style="background:${o?'var(--green)':'var(--red)'}"></span>Shop ${o?'Open':'Closed'}`;
+}
+
+// ── WAIT TIME ─────────────────────────────────────────────────
+function updateWait(v){document.getElementById('waitDisplay').textContent=v;document.getElementById('stat-wait').textContent=v;}
+function setWait(v){document.getElementById('waitSlider').value=v;updateWait(v);}
+async function saveWait(){S.waitTime=parseInt(document.getElementById('waitSlider').value);await saveData(S);updateStats();toast('⏱ Wait time updated on booking page!');}
+function applyWaitTime(){document.getElementById('waitSlider').value=S.waitTime;updateWait(S.waitTime);}
+
+// ── STATS ─────────────────────────────────────────────────────
+function updateStats(){
+  const today=new Date().toISOString().split('T')[0];
+  const ta=S.appointments.filter(a=>a.date===today);
+  const online=S.appointments.filter(a=>a.source==='online');
+  document.getElementById('stat-appts').textContent=ta.length;
+  document.getElementById('stat-appts-sub').textContent=ta.length===0?'none today':`${ta.filter(a=>a.status==='done').length} done`;
+  document.getElementById('stat-clients').textContent=S.clients.length;
+  document.getElementById('stat-online').textContent=online.length;
+  document.getElementById('stat-wait').textContent=S.waitTime;
+}
+
+// ── BADGES ────────────────────────────────────────────────────
+const BADGES={upcoming:'<span class="badge badge-gray">Upcoming</span>',waiting:'<span class="badge badge-gray">Waiting</span>',inchair:'<span class="badge badge-yellow">In Chair</span>',done:'<span class="badge badge-green">Done ✓</span>',noshow:'<span class="badge badge-red">No Show</span>'};
+function srcBadge(s){return s==='online'?'<span class="badge badge-blue">Online</span>':'<span class="badge badge-gray">Manual</span>';}
+
+// ── TODAY QUEUE ───────────────────────────────────────────────
+function renderQueue(){
+  const today=new Date().toISOString().split('T')[0];
+  const appts=S.appointments.filter(a=>a.date===today).sort((a,b)=>a.time.localeCompare(b.time));
+  const tb=document.getElementById('todayQueue');
+  if(!appts.length){tb.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted);font-size:13px">No appointments today</td></tr>`;return;}
+  tb.innerHTML=appts.map(a=>{
+    const[h,m]=a.time.split(':');const ampm=h>=12?'PM':'AM';const dh=h%12||12;
+    return`<tr><td><strong>${x(a.clientName)}</strong></td><td>${x(a.service)}</td><td style="font-family:'DM Mono',monospace;font-size:12px">${dh}:${m} ${ampm}</td><td>${srcBadge(a.source)}</td><td>${BADGES[a.status]||BADGES.upcoming}</td><td style="display:flex;gap:6px"><button class="btn-outline btn-sm" onclick="openEditAppt(${a.id})">Edit</button><button class="btn-red btn-sm" onclick="deleteAppt(${a.id})">✕</button></td></tr>`;
+  }).join('');
+}
+
+// ── ALL BOOKINGS ──────────────────────────────────────────────
+function renderAllBookings(){
+  const today=new Date().toISOString().split('T')[0];
+  const filter=document.getElementById('bookingFilter').value;
+  let appts=[...S.appointments];
+  if(filter==='today') appts=appts.filter(a=>a.date===today);
+  else if(filter==='upcoming') appts=appts.filter(a=>a.date>=today&&a.status!=='done'&&a.status!=='noshow');
+  else if(filter==='past') appts=appts.filter(a=>a.date<today||a.status==='done'||a.status==='noshow');
+  appts.sort((a,b)=>a.date===b.date?a.time.localeCompare(b.time):b.date.localeCompare(a.date));
+  const tb=document.getElementById('allBookingsTable');
+  if(!appts.length){tb.innerHTML=`<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--muted);font-size:13px">No bookings found</td></tr>`;return;}
+  tb.innerHTML=appts.map(a=>{
+    const[h,m]=a.time.split(':');const ampm=h>=12?'PM':'AM';const dh=h%12||12;
+    return`<tr><td><strong>${x(a.clientName)}</strong></td><td>${x(a.service)}</td><td style="font-family:'DM Mono',monospace;font-size:12px">${fmtDate(a.date)}</td><td style="font-family:'DM Mono',monospace;font-size:12px">${dh}:${m} ${ampm}</td><td style="color:var(--gold)">$${a.price}</td><td>${srcBadge(a.source)}</td><td>${BADGES[a.status]||BADGES.upcoming}</td><td style="display:flex;gap:6px"><button class="btn-outline btn-sm" onclick="openEditAppt(${a.id})">Edit</button><button class="btn-red btn-sm" onclick="deleteAppt(${a.id})">✕</button></td></tr>`;
+  }).join('');
+}
+
+// ── BOOKING FORM ──────────────────────────────────────────────
+function openBookingModal(){populateServiceDropdown();document.getElementById('bookingModal').classList.add('open');}
+function populateServiceDropdown(){
+  const sel=document.getElementById('bookService');
+  sel.innerHTML=S.services.map(s=>`<option value="${x(s.name)}" data-price="${s.price}">${x(s.name)} — $${s.price}</option>`).join('');
+  sel.onchange=()=>document.getElementById('bookPrice').value=sel.options[sel.selectedIndex].dataset.price||'';
+  if(sel.options.length) document.getElementById('bookPrice').value=sel.options[0].dataset.price||'';
+}
+async function submitBooking(){
+  const name=document.getElementById('bookName').value.trim();
+  const phone=document.getElementById('bookPhone').value.trim();
+  const service=document.getElementById('bookService').value;
+  const time=document.getElementById('bookTime').value;
+  const date=document.getElementById('bookDate').value;
+  const price=parseFloat(document.getElementById('bookPrice').value)||0;
+  const notes=document.getElementById('bookNotes').value.trim();
+  if(!name){toast('Enter a client name');return;}
+  if(!date){toast('Select a date');return;}
+  S=await loadData();
+  S.appointments.push({id:S.nextId++,clientName:name,phone,service,time,date,price,notes,status:'upcoming',source:'manual'});
+  const ex=S.clients.find(c=>c.name.toLowerCase()===name.toLowerCase());
+  if(!ex) S.clients.push({id:S.nextId++,name,phone,preferredCut:service,lastVisit:date,visits:1,notes});
+  else{ex.lastVisit=date;ex.visits=(ex.visits||0)+1;}
+  await saveData(S);
+  renderQueue();renderAllBookings();renderClients();updateStats();renderWeekChart();
+  closeModal('bookingModal');
+  ['bookName','bookPhone','bookNotes'].forEach(i=>document.getElementById(i).value='');
+  toast('✅ Booking added for '+name);
+}
+
+function openEditAppt(id){
+  const a=S.appointments.find(x=>x.id===id);if(!a)return;
+  document.getElementById('editApptId').value=id;
+  document.getElementById('editApptStatus').value=a.status||'upcoming';
+  document.getElementById('editApptNotes').value=a.notes||'';
+  document.getElementById('editApptModal').classList.add('open');
+}
+async function saveApptEdit(){
+  const id=parseInt(document.getElementById('editApptId').value);
+  const a=S.appointments.find(x=>x.id===id);if(!a)return;
+  a.status=document.getElementById('editApptStatus').value;
+  a.notes=document.getElementById('editApptNotes').value.trim();
+  await saveData(S);
+  renderQueue();renderAllBookings();renderQueueStatus();updateStats();renderAnalytics();
+  closeModal('editApptModal');toast('✅ Updated');
+}
+async function deleteAppt(id){
+  if(!confirm('Remove this appointment?'))return;
+  S.appointments=S.appointments.filter(a=>a.id!==id);
+  await saveData(S);renderQueue();renderAllBookings();updateStats();renderWeekChart();toast('Removed');
+}
+
+// ── CLIENTS ───────────────────────────────────────────────────
+function renderClients(filter=''){
+  const list=filter?S.clients.filter(c=>c.name.toLowerCase().includes(filter.toLowerCase())||(c.phone||'').includes(filter)):S.clients;
+  const tb=document.getElementById('clientTable');
+  if(!list.length){tb.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted);font-size:13px">No clients yet</td></tr>`;return;}
+  tb.innerHTML=list.map(c=>`<tr><td><strong>${x(c.name)}</strong></td><td style="font-family:'DM Mono',monospace;font-size:12px">${x(c.phone||'—')}</td><td>${x(c.preferredCut||'—')}</td><td style="font-family:'DM Mono',monospace;font-size:12px">${c.lastVisit?fmtDate(c.lastVisit):'—'}</td><td style="color:var(--gold)">${c.visits||0}</td><td style="color:var(--muted);font-size:12px">${x(c.notes||'—')}</td><td><button class="btn-red btn-sm" onclick="deleteClient(${c.id})">✕</button></td></tr>`).join('');
+}
+function filterClients(q){renderClients(q);}
+function openClientModal(){document.getElementById('clientModal').classList.add('open');}
+async function submitClient(){
+  const name=document.getElementById('clientName').value.trim();
+  const phone=document.getElementById('clientPhone').value.trim();
+  const cut=document.getElementById('clientCut').value.trim();
+  const notes=document.getElementById('clientNotes').value.trim();
+  if(!name){toast('Enter a name');return;}
+  S.clients.push({id:S.nextId++,name,phone,preferredCut:cut,lastVisit:null,visits:0,notes});
+  await saveData(S);renderClients();updateStats();
+  closeModal('clientModal');
+  ['clientName','clientPhone','clientCut','clientNotes'].forEach(i=>document.getElementById(i).value='');
+  toast('✅ '+name+' added!');
+}
+async function deleteClient(id){
+  const c=S.clients.find(x=>x.id===id);
+  if(!confirm('Remove '+(c?c.name:'client')+'?'))return;
+  S.clients=S.clients.filter(x=>x.id!==id);
+  await saveData(S);renderClients();updateStats();toast('Removed');
+}
+
+// ── SERVICES ──────────────────────────────────────────────────
+function renderServices(){
+  const g=document.getElementById('priceGrid');
+  if(!S.services.length){g.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--muted)">No services yet.</div>';return;}
+  g.innerHTML=S.services.map(s=>`<div class="price-card${s.featured?' featured':''}"><div class="price-name">${x(s.name)}</div><div class="price-desc">${x(s.desc)}</div><div class="price-amount">$${s.price}<span> flat</span></div><div class="price-duration">⏱ ~${s.duration} min</div><div class="price-actions"><button class="btn-outline" onclick="openEditService(${s.id})">✏ Edit</button><button class="btn-outline" onclick="toggleFeatured(${s.id})">${s.featured?'★ Featured':'☆ Feature'}</button><button class="btn-red" onclick="deleteService(${s.id})">Remove</button></div></div>`).join('');
+}
+function openEditService(id){
+  const s=S.services.find(s=>s.id===id);if(!s)return;
+  document.getElementById('editServiceId').value=id;
+  document.getElementById('editServiceName').value=s.name;
+  document.getElementById('editServicePrice').value=s.price;
+  document.getElementById('editServiceDuration').value=s.duration;
+  document.getElementById('editServiceDesc').value=s.desc||'';
+  document.getElementById('editServiceModal').classList.add('open');
+}
+async function saveServiceEdit(){
+  const id=parseInt(document.getElementById('editServiceId').value);
+  const s=S.services.find(s=>s.id===id);if(!s)return;
+  const name=document.getElementById('editServiceName').value.trim();
+  const price=parseFloat(document.getElementById('editServicePrice').value)||0;
+  const duration=parseInt(document.getElementById('editServiceDuration').value)||30;
+  const desc=document.getElementById('editServiceDesc').value.trim();
+  if(!name||!price){toast('Name and price are required');return;}
+  s.name=name;s.price=price;s.duration=duration;s.desc=desc;
+  await saveData(S);renderServices();populateServiceDropdown();
+  closeModal('editServiceModal');
+  toast('✅ "'+name+'" updated!');
+}
+function openPriceModal(){document.getElementById('priceModal').classList.add('open');}
+async function submitPrice(){
+  const name=document.getElementById('priceServiceName').value.trim();
+  const price=parseFloat(document.getElementById('priceAmount').value)||0;
+  const duration=parseInt(document.getElementById('priceDuration').value)||30;
+  const desc=document.getElementById('priceDesc').value.trim();
+  if(!name||!price){toast('Fill in name and price');return;}
+  S.services.push({id:S.nextId++,name,price,duration,desc,featured:false});
+  await saveData(S);renderServices();populateServiceDropdown();
+  closeModal('priceModal');
+  ['priceServiceName','priceAmount','priceDuration','priceDesc'].forEach(i=>document.getElementById(i).value='');
+  toast('✅ "'+name+'" added!');
+}
+async function deleteService(id){
+  if(!confirm('Remove this service?'))return;
+  S.services=S.services.filter(s=>s.id!==id);
+  await saveData(S);renderServices();populateServiceDropdown();toast('Removed');
+}
+async function toggleFeatured(id){
+  S.services.forEach(s=>s.featured=false);
+  const s=S.services.find(s=>s.id===id);if(s)s.featured=true;
+  await saveData(S);renderServices();toast('★ Featured updated!');
+}
+
+// ── SCHEDULE ──────────────────────────────────────────────────
+const SD=['MON','TUE','WED','THU','FRI','SAT'];
+const ST=['9 AM','10 AM','11 AM','12 PM','1 PM','2 PM','3 PM','4 PM','5 PM','6 PM'];
+function getSlot(di,ti){const k=`${di}-${ti}`;if(S.schedule[k])return S.schedule[k];if(ti>=8)return 'closed';return 'open';}
+function renderSchedule(){
+  const g=document.getElementById('scheduleGrid');g.innerHTML='';
+  const b=document.createElement('div');b.className='sched-cell header';g.appendChild(b);
+  SD.forEach(d=>{const h=document.createElement('div');h.className='sched-cell header';h.textContent=d;g.appendChild(h);});
+  ST.forEach((t,ti)=>{
+    const l=document.createElement('div');l.className='sched-cell time-label';l.textContent=t;g.appendChild(l);
+    SD.forEach(async(_,di)=>{
+      const c=document.createElement('div');const st=getSlot(di,ti);
+      c.className='sched-cell '+st;if(st==='booked')c.textContent='●';
+      if(st!=='closed') c.onclick=async()=>{
+        const cur=getSlot(di,ti);const nxt=cur==='booked'?'open':'booked';
+        S.schedule[`${di}-${ti}`]=nxt;await saveData(S);
+        c.className='sched-cell '+nxt;c.textContent=nxt==='booked'?'●':'';
+        toast(nxt==='booked'?'🔒 Slot blocked':'🔓 Slot opened');
+      };
+      g.appendChild(c);
+    });
+  });
+}
+
+// ── QUEUE STATUS ──────────────────────────────────────────────
+function renderQueueStatus(){
+  const today=new Date().toISOString().split('T')[0];
+  const ta=S.appointments.filter(a=>a.date===today).sort((a,b)=>a.time.localeCompare(b.time));
+  const inChair=ta.find(a=>a.status==='inchair');
+  const waiting=ta.filter(a=>a.status==='waiting'||a.status==='upcoming');
+  document.getElementById('queueStatus').innerHTML=`
+    <div class="revenue-row"><span style="color:var(--muted);font-size:12px">In Chair</span><strong>${inChair?x(inChair.clientName)+' — '+x(inChair.service):'Nobody yet'}</strong></div>
+    <div class="revenue-row"><span style="color:var(--muted);font-size:12px">Waiting</span><strong style="color:var(--gold)">${waiting.length} waiting</strong></div>
+    <div class="revenue-row"><span style="color:var(--muted);font-size:12px">Today Total</span><strong>${ta.length} booked</strong></div>
+    <div class="revenue-row"><span style="color:var(--muted);font-size:12px">Saved Wait</span><strong>${S.waitTime} min</strong></div>`;
+}
+
+// ── ANALYTICS ─────────────────────────────────────────────────
+function renderAnalytics(){
+  const today=new Date().toISOString().split('T')[0];
+  const done=S.appointments.filter(a=>a.status==='done');
+  const doneToday=done.filter(a=>a.date===today);
+  const rev=done.reduce((s,a)=>s+(parseFloat(a.price)||0),0);
+  const todayRev=doneToday.reduce((s,a)=>s+(parseFloat(a.price)||0),0);
+  const avg=done.length?Math.round(rev/done.length):0;
+  const noshow=S.appointments.filter(a=>a.status==='noshow').length;
+  document.getElementById('ana-rev').textContent='$'+rev;
+  document.getElementById('ana-today').textContent='$'+todayRev;
+  document.getElementById('ana-today-sub').textContent=doneToday.length+' done today';
+  document.getElementById('ana-avg').textContent='$'+avg;
+  document.getElementById('ana-noshow').textContent=noshow;
+  const rbs={};done.forEach(a=>{rbs[a.service]=(rbs[a.service]||0)+(parseFloat(a.price)||0);});
+  const sorted=Object.entries(rbs).sort((a,b)=>b[1]-a[1]);
+  const maxR=sorted.length?sorted[0][1]:1;
+  document.getElementById('revenueByService').innerHTML=sorted.length
+    ?sorted.map(([n,v])=>`<div class="revenue-row"><span>${x(n)}</span><div style="display:flex;align-items:center;gap:12px"><div style="width:80px;height:6px;background:var(--border);border-radius:3px;overflow:hidden"><div style="width:${(v/maxR*100).toFixed(0)}%;height:100%;background:var(--gold);border-radius:3px"></div></div><strong style="color:var(--gold);font-family:'DM Mono',monospace;font-size:12px">$${v}</strong></div></div>`).join('')
+    :'<div style="padding:24px;text-align:center;color:var(--muted);font-size:13px">Mark appointments as Done to see data</div>';
+  const top=[...S.clients].sort((a,b)=>(b.visits||0)-(a.visits||0)).slice(0,5);
+  document.getElementById('topClients').innerHTML=top.length
+    ?top.map((c,i)=>`<div class="revenue-row"><div style="display:flex;align-items:center;gap:10px"><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">${i+1}</span><strong>${x(c.name)}</strong></div><span style="color:var(--gold);font-family:'DM Mono',monospace;font-size:12px">${c.visits||0} visit${(c.visits||0)!==1?'s':''}</span></div>`).join('')
+    :'<div style="padding:24px;text-align:center;color:var(--muted);font-size:13px">Add clients to see top clients</div>';
+}
+
+// ── WEEK CHART ────────────────────────────────────────────────
+function renderWeekChart(){
+  const DLBLS=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  const now=new Date();const wc=Array(7).fill(0);
+  S.appointments.forEach(a=>{
+    const d=new Date(a.date+'T12:00:00');
+    const diff=Math.round((now-d)/86400000);
+    if(diff>=0&&diff<7) wc[d.getDay()]++;
+  });
+  const tot=wc.reduce((s,v)=>s+v,0);
+  document.getElementById('weeklyAppts').textContent=tot;
+  const maxV=Math.max(...wc,1);
+  const ch=document.getElementById('weekChart');ch.innerHTML='';
+  DLBLS.forEach((d,i)=>{
+    const col=document.createElement('div');col.className='bar-col';
+    const bar=document.createElement('div');bar.className='bar';bar.style.height=(wc[i]/maxV*100)+'%';
+    const lbl=document.createElement('div');lbl.className='bar-label';lbl.textContent=d;
+    col.appendChild(bar);col.appendChild(lbl);ch.appendChild(col);
+  });
+}
+
+// ── PAYMENT ───────────────────────────────────────────────────
+function renderPaymentPanel(){
+  const qr=S.payment.venmoQr;
+  const username=S.payment.venmoUsername||'';
+  document.getElementById('venmoUsername').value=username;
+  if(qr){
+    document.getElementById('qrPreview').src=qr;
+    document.getElementById('qrPreviewWrap').style.display='block';
+    document.getElementById('qrPlaceholder').style.display='none';
+    document.getElementById('previewQrImg').src=qr;
+    document.getElementById('previewQr').style.display='block';
+    document.getElementById('previewNoQr').style.display='none';
+  } else {
+    document.getElementById('qrPreviewWrap').style.display='none';
+    document.getElementById('qrPlaceholder').style.display='block';
+    document.getElementById('previewQr').style.display='none';
+    document.getElementById('previewNoQr').style.display='block';
+  }
+  if(username){
+    document.getElementById('previewUsername').style.display='block';
+    const link=document.getElementById('previewVenmoLink');
+    link.textContent='venmo.com/'+username.replace('@','');
+    link.href='https://venmo.com/'+username.replace('@','');
+  } else {
+    document.getElementById('previewUsername').style.display='none';
+  }
+}
+
+function handleQrUpload(input){
+  const file=input.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const dataUrl=e.target.result;
+    // Store as base64 in state
+    S.payment.venmoQr=dataUrl;
+    renderPaymentPanel();
+    toast('✅ QR code uploaded — save to publish');
+  };
+  reader.readAsDataURL(file);
+}
+
+async function savePaymentSettings(){
+  S.payment.venmoUsername=document.getElementById('venmoUsername').value.trim();
+  await saveData(S);
+  renderPaymentPanel();
+  toast('✅ Payment settings saved — live on booking page!');
+}
+
+// ── SETTINGS ──────────────────────────────────────────────────
+function applySettings(){
+  document.getElementById('set-barber').value=S.settings.barber||'';
+  document.getElementById('set-shop').value=S.settings.shop||'';
+  document.getElementById('set-phone').value=S.settings.phone||'';
+  document.getElementById('set-address').value=S.settings.address||'';
+  document.getElementById('shopNameDisplay').textContent=S.settings.shop||'FadeMaster';
+}
+async function saveSettings(){
+  S.settings.barber=document.getElementById('set-barber').value.trim();
+  S.settings.shop=document.getElementById('set-shop').value.trim();
+  S.settings.phone=document.getElementById('set-phone').value.trim();
+  S.settings.address=document.getElementById('set-address').value.trim();
+  await saveData(S);
+  document.getElementById('shopNameDisplay').textContent=S.settings.shop||'FadeMaster';
+  toast('✅ Settings saved — live on booking page!');
+}
+function renderHoursGrid(){
+  const c=document.getElementById('hoursGrid');c.innerHTML='';
+  Object.keys(S.hours).forEach(day=>{
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)';
+    const v=S.hours[day];
+    row.innerHTML=`<span style="font-size:13px;color:${v==='—'?'var(--muted)':'var(--text)'}">${day}</span><input class="input" data-day="${day}" style="width:160px;padding:6px 10px;font-size:12px" value="${v}">`;
+    c.appendChild(row);
+  });
+}
+async function saveHours(){
+  document.querySelectorAll('#hoursGrid input').forEach(i=>{S.hours[i.dataset.day]=i.value.trim()||'—';});
+  await saveData(S);toast('✅ Hours saved — live on booking page!');
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=url;a.download='fademaster_backup_'+new Date().toISOString().split('T')[0]+'.json';
+  a.click();URL.revokeObjectURL(url);toast('📤 Exported!');
+}
+async function clearAllData(){
+  if(!confirm('⚠️ Delete ALL data?'))return;
+  if(!confirm('Cannot be undone. Continue?'))return;
+  localStorage.removeItem(LOCAL_KEY);S=merge({});
+  if(isConfigured()){
+    try{await fetch(`${JSONBIN_BASE}/${JSONBIN_BIN_ID}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_API_KEY},body:JSON.stringify(S)});}catch(e){}
+  }
+  applyShopStatus();applyWaitTime();applySettings();
+  renderQueue();renderAllBookings();renderClients();renderServices();renderSchedule();
+  renderHoursGrid();renderWeekChart();renderQueueStatus();updateStats();
+  toast('🗑 All data cleared');
+}
+
+// ── MODALS ────────────────────────────────────────────────────
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+
+// ── UTILS ─────────────────────────────────────────────────────
+function x(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmtDate(iso){if(!iso)return'—';const d=new Date(iso+'T12:00:00');return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});}
+</script>
+</body>
+</html>

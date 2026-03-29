@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amazon Orders Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue: #185FA5;
+    --blue-mid: #378ADD;
+    --blue-light: #B5D4F4;
+    --blue-pale: #E6F1FB;
+    --teal: #1D9E75;
+    --coral: #D85A30;
+    --amber: #BA7517;
+    --pink: #D4537E;
+    --green: #639922;
+    --purple: #534AB7;
+    --gray: #888780;
+    --gray-light: #F7F6F2;
+    --gray-mid: #D3D1C7;
+    --text: #1a1a18;
+    --text-sec: #555550;
+    --text-ter: #888780;
+    --bg: #f4f2ed;
+    --card-bg: #ffffff;
+    --radius: 10px;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  .page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 48px 32px 64px;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 36px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--gray-mid);
+  }
+  .header-left h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px;
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.1;
+  }
+  .header-left p {
+    font-size: 13px;
+    color: var(--text-ter);
+    margin-top: 6px;
+    font-weight: 300;
+  }
+  .header-badge {
+    background: var(--blue);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 20px;
+    letter-spacing: 0.04em;
+  }
+
+  /* Section label */
+  .section-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: var(--text-ter);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  /* Metric cards */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .metric-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 20px;
+    border-left: 3px solid var(--accent, var(--blue-mid));
+    position: relative;
+    overflow: hidden;
+  }
+  .metric-card::after {
+    content: '';
+    position: absolute;
+    right: -20px; top: -20px;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: var(--accent, var(--blue-mid));
+    opacity: 0.05;
+  }
+  .metric-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-ter);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+  .metric-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: var(--text);
+    line-height: 1;
+  }
+  .metric-sub {
+    font-size: 11px;
+    color: var(--text-ter);
+    margin-top: 6px;
+    font-weight: 300;
+  }
+
+  /* Charts grid */
+  .charts-row {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .charts-row-2 { grid-template-columns: 1.7fr 1fr; }
+  .charts-row-2b { grid-template-columns: 1fr 1fr; }
+
+  .chart-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+  }
+  .chart-card h3 {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-sec);
+    margin-bottom: 18px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .chart-wrap {
+    position: relative;
+    width: 100%;
+  }
+
+  /* Top 10 table */
+  .top10-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .top10-table th {
+    font-size: 9px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-ter);
+    padding: 0 0 10px 0;
+    text-align: left;
+    border-bottom: 1px solid var(--gray-mid);
+  }
+  .top10-table th:last-child { text-align: right; }
+  .top10-table td {
+    padding: 9px 0;
+    border-bottom: 1px solid #f0ede8;
+    vertical-align: middle;
+  }
+  .top10-table tr:last-child td { border-bottom: none; }
+  .rank-cell {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-ter);
+    width: 22px;
+    padding-right: 8px !important;
+  }
+  .name-cell {
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.4;
+    padding-right: 16px !important;
+  }
+  .bar-cell { width: 110px; padding-right: 12px !important; }
+  .bar-track {
+    background: var(--blue-pale);
+    border-radius: 3px;
+    height: 5px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--blue-mid);
+  }
+  .amt-cell {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+    text-align: right;
+    white-space: nowrap;
+    width: 52px;
+  }
+
+  /* Shipping chart */
+  .ship-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .ship-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--text-sec);
+  }
+  .ship-dot {
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid var(--gray-mid);
+    font-size: 11px;
+    color: var(--text-ter);
+    font-weight: 300;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+  .footer-stat {
+    display: flex;
+    gap: 24px;
+  }
+  .footer-stat span { white-space: nowrap; }
+
+  @media print {
+    body { background: white; }
+    .page { padding: 24px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="header-left">
+      <h1>Amazon Orders Dashboard</h1>
+      <p>Personal purchase history &middot; 2020 – 2026 &middot; Elliot Weiss</p>
+    </div>
+    <div class="header-badge">619 items &middot; 235 orders</div>
+  </div>
+
+  <!-- Metrics -->
+  <p class="section-label">All-time summary</p>
+  <div class="metrics-grid">
+    <div class="metric-card" style="--accent: #378ADD;">
+      <div class="metric-label">Total Spent</div>
+      <div class="metric-value">$10,822</div>
+      <div class="metric-sub">2020 – 2026</div>
+    </div>
+    <div class="metric-card" style="--accent: #1D9E75;">
+      <div class="metric-label">Total Orders</div>
+      <div class="metric-value">235</div>
+      <div class="metric-sub">619 line items</div>
+    </div>
+    <div class="metric-card" style="--accent: #D85A30;">
+      <div class="metric-label">Avg Order Value</div>
+      <div class="metric-value">$45.28</div>
+      <div class="metric-sub">Range: $4 – $417</div>
+    </div>
+    <div class="metric-card" style="--accent: #BA7517;">
+      <div class="metric-label">Total Discounts</div>
+      <div class="metric-value">$326</div>
+      <div class="metric-sub">Total savings</div>
+    </div>
+  </div>
+
+  <!-- Year + Category -->
+  <div class="charts-row charts-row-2">
+    <div class="chart-card">
+      <h3>Spend by Year</h3>
+      <div class="chart-wrap" style="height:200px;">
+        <canvas id="yearChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3>Spend by Category</h3>
+      <div class="chart-wrap" style="height:200px;">
+        <canvas id="catChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Monthly + Orders per year -->
+  <div class="charts-row charts-row-2b">
+    <div class="chart-card">
+      <h3>Monthly Spend — Last 12 Months</h3>
+      <div class="chart-wrap" style="height:170px;">
+        <canvas id="monthChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3>Orders per Year</h3>
+      <div class="chart-wrap" style="height:170px;">
+        <canvas id="ordersChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top 10 + Shipping -->
+  <div class="charts-row charts-row-2b" style="margin-bottom:0;">
+    <div class="chart-card">
+      <h3>Top 10 Purchases by Spend</h3>
+      <table class="top10-table">
+        <thead>
+          <tr>
+            <th class="rank-cell">#</th>
+            <th>Product</th>
+            <th class="bar-cell"></th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="rank-cell">1</td>
+            <td class="name-cell">Claiks Electric Standing Desk, Adjustable Height</td>
+            <td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div></td>
+            <td class="amt-cell">$220</td>
+          </tr>
+          <tr>
+            <td class="rank-cell">2</td>
+            <td class="name-cell">Vega Sport Premium Protein Powder, Chocolate</td>
+            <td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:74%"></div></div></td>
+            <td class="amt-cell">$162</td>
+          </tr>
+          <tr>
+            <td class="rank-cell">3</td>
+            <td class="name-cell">Hogwarts Legacy — PlayStation 5</td>
+            <td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:70%"></div></div></td>
+            <td class="amt-cell">$153</td>
+          </tr>
+          <tr>
+            <td class="rank-cell">4</td>
+            <td class="name-cell">Amazon Basics Smart Box Spring Bed Base</td>
+            <td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:69%"></div></div></td>
+            <td class="amt-cell">$152</td>
+          </tr>
+          <tr>
+            <td class="rank-cell">5</td>
+            <td class="name-cell">TAID Stacking Accent Coffee Tables</td>
+            <td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:65%"></div></div></td>
+            <td class="amt-cell">$143</td>
+          </tr>
+          <tr>
+            <td class="rank-cell">6</td>
+            <td class="name-cell">Instant Pot Duo Crisp Pressure Cooker 11-in-1</td>
+            <td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:64%"></div></div></td>
+            <td class="amt-cell">$141</td>
+          </tr>
+          <tr>
+            <td class="rank-cell">7</td>
+            <td class="name-cell">Portable Power Station 300W 257Wh</td>
+            <td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:55%"></div></div></td>
+            <td class="amt-cell">$121</td>
+          </tr>
+          <tr>
+            <td class="rank-cell">8</td>
+            <td class="name-cell">Instant Vortex Plus Air Fryer Oven 7-in-1</td>
+            <td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:50%"></div></div></td>
+            <td class="amt-cell">$110</td>
+          </tr>
+          <tr>
+            <td class="rank-cell">9</td>
+            <td class="name-cell">Dirt Devil Portable Spot Compact Carpet Cleaner</td>
+            <td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:50%"></div></div></td>
+            <td class="amt-cell">$110</td>
+          </tr>
+          <tr>
+            <td class="rank-cell">10</td>
+            <td class="name-cell">GoCube Connected Electronic Bluetooth Rubik's Cube</td>
+            <td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:45%"></div></div></td>
+            <td class="amt-cell">$99</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="chart-card">
+      <h3>Shipping Speed Breakdown</h3>
+      <div class="chart-wrap" style="height:210px;">
+        <canvas id="shipChart"></canvas>
+      </div>
+      <div class="ship-legend">
+        <div class="ship-legend-item"><div class="ship-dot" style="background:#378ADD;"></div>Next-day (36%)</div>
+        <div class="ship-legend-item"><div class="ship-dot" style="background:#1D9E75;"></div>Grocery (24%)</div>
+        <div class="ship-legend-item"><div class="ship-dot" style="background:#D85A30;"></div>Rush (13%)</div>
+        <div class="ship-legend-item"><div class="ship-dot" style="background:#888780;"></div>N/A (14%)</div>
+        <div class="ship-legend-item"><div class="ship-dot" style="background:#B5D4F4;"></div>2nd day (8%)</div>
+        <div class="ship-legend-item"><div class="ship-dot" style="background:#9FE1CB;"></div>Other (5%)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-stat">
+      <span>Taxes paid: <strong>$1,699</strong></span>
+      <span>Most active year: <strong>2021</strong> (51 orders)</span>
+      <span>Peak month: <strong>Dec 2025</strong> ($356)</span>
+      <span>Biggest order: <strong>$417</strong></span>
+    </div>
+    <div style="color:var(--text-ter); font-size:10px; white-space:nowrap;">* 2026 partial year</div>
+  </div>
+
+</div>
+
+<script>
+const tc = 'rgba(0,0,0,0.4)';
+const gc = 'rgba(0,0,0,0.06)';
+const base = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: { legend: { display: false } },
+  scales: {
+    x: { ticks: { color: tc, font: { size: 10, family: 'DM Sans' } }, grid: { display: false }, border: { display: false } },
+    y: { ticks: { color: tc, font: { size: 10, family: 'DM Sans' }, callback: v => '$' + (v >= 1000 ? (v/1000).toFixed(0)+'k' : v) }, grid: { color: gc }, border: { display: false } }
+  }
+};
+
+new Chart(document.getElementById('yearChart'), {
+  type: 'bar',
+  data: {
+    labels: ['2020','2021','2022','2023','2024','2025','2026*'],
+    datasets: [{
+      data: [1245, 2730, 1160, 1727, 1444, 2020, 496],
+      backgroundColor: ['#B5D4F4','#378ADD','#B5D4F4','#B5D4F4','#B5D4F4','#378ADD','rgba(55,138,221,0.35)'],
+      borderRadius: 5,
+      borderSkipped: false,
+    }]
+  },
+  options: { ...base, plugins: { ...base.plugins, tooltip: { callbacks: { label: c => ' $' + c.parsed.y.toLocaleString() } } }, scales: { ...base.scales, x: { ...base.scales.x, ticks: { ...base.scales.x.ticks, autoSkip: false } } } }
+});
+
+new Chart(document.getElementById('catChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Other','Food & Grocery','Home & Kitchen','Electronics','Pet Supplies','Books','Toys & Games','Sports','Clothing'],
+    datasets: [{
+      data: [3642, 2113, 1962, 1196, 801, 396, 292, 240, 178],
+      backgroundColor: ['#378ADD','#1D9E75','#D85A30','#BA7517','#D4537E','#639922','#534AB7','#888780','#B5D4F4'],
+      borderWidth: 2,
+      borderColor: '#ffffff',
+      hoverOffset: 5
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, cutout: '60%',
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ' ' + c.label + ': $' + c.parsed.toLocaleString() } } }
+  }
+});
+
+new Chart(document.getElementById('monthChart'), {
+  type: 'line',
+  data: {
+    labels: ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],
+    datasets: [{
+      data: [152, 100, 213, 299, 161, 260, 147, 233, 356, 158, 137, 201],
+      borderColor: '#378ADD',
+      backgroundColor: 'rgba(55,138,221,0.07)',
+      borderWidth: 2,
+      pointBackgroundColor: '#378ADD',
+      pointRadius: 3.5,
+      fill: true,
+      tension: 0.35
+    }]
+  },
+  options: { ...base, plugins: { ...base.plugins, tooltip: { callbacks: { label: c => ' $' + c.parsed.y } } }, scales: { ...base.scales, x: { ...base.scales.x, ticks: { ...base.scales.x.ticks, autoSkip: false } } } }
+});
+
+new Chart(document.getElementById('ordersChart'), {
+  type: 'bar',
+  data: {
+    labels: ['2020','2021','2022','2023','2024','2025'],
+    datasets: [{
+      data: [9, 51, 28, 62, 44, 55],
+      backgroundColor: ['#B5D4F4','#378ADD','#B5D4F4','#378ADD','#B5D4F4','#378ADD'],
+      borderRadius: 5,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ' ' + c.parsed.y + ' orders' } } },
+    scales: {
+      x: { ticks: { color: tc, font: { size: 10, family: 'DM Sans' }, autoSkip: false }, grid: { display: false }, border: { display: false } },
+      y: { ticks: { color: tc, font: { size: 10, family: 'DM Sans' } }, grid: { color: gc }, border: { display: false } }
+    }
+  }
+});
+
+new Chart(document.getElementById('shipChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Next-day', 'Grocery', 'N/A', 'Rush', '2nd day', 'Other'],
+    datasets: [{
+      data: [223, 151, 84, 83, 50, 28],
+      backgroundColor: ['#378ADD','#1D9E75','#888780','#D85A30','#B5D4F4','#9FE1CB'],
+      borderRadius: 5,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ' ' + c.parsed.y + ' orders' } } },
+    scales: {
+      x: { ticks: { color: tc, font: { size: 10, family: 'DM Sans' }, autoSkip: false }, grid: { display: false }, border: { display: false } },
+      y: { ticks: { color: tc, font: { size: 10, family: 'DM Sans' } }, grid: { color: gc }, border: { display: false } }
+    }
+  }
+});
+</script>
+</body>
+</html>
