@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gabby's Dashboard</title>
+<title>Huckleberry Tracking Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -159,10 +159,10 @@
 <body>
 
 <header>
-  <div class="avatar">G</div>
+  <div class="avatar">F</div>
   <div class="header-text">
-    <h1>Gabrielle Sloane</h1>
-    <p>Baby Tracker Dashboard · aka Gabby 🌸</p>
+    <h1>First Name Last Name</h1>
+    <p>Baby Tracker Dashboard · aka Nickname 🌸</p>
   </div>
   <button class="upload-btn" onclick="document.getElementById('csvInput').click()">Upload CSV</button>
   <input type="file" id="csvInput" accept=".csv" onchange="handleCSV(event)">
@@ -171,7 +171,7 @@
 <main>
   <div id="emptyState">
     <div class="empty-icon">🌸</div>
-    <h2>Welcome, Gabby's Dashboard</h2>
+    <h2>Welcome, Baby Tracker Dashboard</h2>
     <p>Upload your Huckleberry CSV export to see feeding and diaper insights beautifully organized.</p>
     <button class="upload-btn-lg" onclick="document.getElementById('csvInput').click()">Upload Huckleberry CSV</button>
   </div>
@@ -626,7 +626,7 @@ function showError(msg) {
 <script>
 // Auto-load embedded CSV data on page load
 window.addEventListener('DOMContentLoaded', function() {
-  fetch('huckleberry_data.csv')
+  fetch('/static/dashboards/huckleberry_data.csv')
     .then(r => r.text())
     .then(text => processData(text))
     .catch(() => {});

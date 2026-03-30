@@ -19,6 +19,7 @@
         <a href="#work">Work</a>
         <a href="#cv">CV</a>
         <a href="#contact">Contact</a>
+        <a href="https://linkedin.com/in/eweiss225" target="_blank" rel="noopener" class="nav-linkedin"><i class="fa-brands fa-linkedin-in"></i> LinkedIn</a>
       </div>
       <button class="hamburger" id="hamburger" aria-label="Menu">
         <span></span><span></span><span></span>
@@ -115,7 +116,7 @@
         <p>Where I've been and what I bring.</p>
       </div>
 
-      <div class="cv-layout">
+      <div class="cv-layout-full">
         <!-- Timeline -->
         <div class="timeline">
           
@@ -181,60 +182,62 @@
           
         </div>
 
-        <!-- Skills + Education -->
-        <aside class="cv-aside">
-          <div class="aside-block glass-card reveal">
-            <h4><i class="fa-solid fa-wand-magic-sparkles"></i> Areas of Expertise</h4>
-            <div class="skill-cloud">
-              
-              <span class="skill-pill">SAS</span>
-              
-              <span class="skill-pill">SQL</span>
-              
-              <span class="skill-pill">Python</span>
-              
-              <span class="skill-pill">R</span>
-              
-              <span class="skill-pill">ArcGIS Pro</span>
-              
-              <span class="skill-pill">Tableau</span>
-              
-              <span class="skill-pill">Power BI</span>
-              
-              <span class="skill-pill">Microsoft Excel</span>
-              
-              <span class="skill-pill">Microsoft O365</span>
-              
-              <span class="skill-pill">Database Management</span>
-              
-              <span class="skill-pill">SFTP</span>
-              
-              <span class="skill-pill">Dashboard Development</span>
-              
-              <span class="skill-pill">Statistical Modeling</span>
-              
-              <span class="skill-pill">Data Collection</span>
-              
-              <span class="skill-pill">Epidemiology &amp; Biostatistics</span>
-              
-              <span class="skill-pill">Public Health Research</span>
-              
-              <span class="skill-pill">Public Health Surveillance Systems</span>
-              
-              <span class="skill-pill">Information Technology</span>
-              
-              <span class="skill-pill">Leadership</span>
-              
-              <span class="skill-pill">Communication</span>
-              
-              <span class="skill-pill">Consulting</span>
-              
-              <span class="skill-pill">External Stakeholders</span>
-              
-            </div>
+        <!-- Areas of Expertise -->
+        <div class="cv-full-block glass-card reveal">
+          <h4><i class="fa-solid fa-wand-magic-sparkles"></i> Areas of Expertise</h4>
+          <div class="skill-cloud">
+            
+            <span class="skill-pill">SAS</span>
+            
+            <span class="skill-pill">SQL</span>
+            
+            <span class="skill-pill">Python</span>
+            
+            <span class="skill-pill">R</span>
+            
+            <span class="skill-pill">ArcGIS Pro</span>
+            
+            <span class="skill-pill">Tableau</span>
+            
+            <span class="skill-pill">Power BI</span>
+            
+            <span class="skill-pill">Microsoft Excel</span>
+            
+            <span class="skill-pill">Microsoft O365</span>
+            
+            <span class="skill-pill">Database Management</span>
+            
+            <span class="skill-pill">SFTP</span>
+            
+            <span class="skill-pill">Dashboard Development</span>
+            
+            <span class="skill-pill">Statistical Modeling</span>
+            
+            <span class="skill-pill">Data Collection</span>
+            
+            <span class="skill-pill">Epidemiology &amp; Biostatistics</span>
+            
+            <span class="skill-pill">Public Health Research</span>
+            
+            <span class="skill-pill">Public Health Surveillance Systems</span>
+            
+            <span class="skill-pill">Information Technology</span>
+            
+            <span class="skill-pill">Leadership</span>
+            
+            <span class="skill-pill">Communication</span>
+            
+            <span class="skill-pill">Consulting</span>
+            
+            <span class="skill-pill">External Stakeholders</span>
+            
           </div>
+        </div>
+
+        <!-- Education -->
+        <div class="cv-edu-grid">
           
-          <div class="aside-block glass-card reveal">
+          <div class="cv-full-block glass-card reveal">
             <h4><i class="fa-solid fa-graduation-cap"></i> Education</h4>
             <p class="edu-degree">Master of Public Health</p>
             <p class="edu-concentration">Epidemiology / Biostatistics</p>
@@ -242,7 +245,7 @@
             
           </div>
           
-          <div class="aside-block glass-card reveal">
+          <div class="cv-full-block glass-card reveal">
             <h4><i class="fa-solid fa-graduation-cap"></i> Education</h4>
             <p class="edu-degree">Bachelor of Science in Kinesiology</p>
             <p class="edu-concentration">Movement Science</p>
@@ -252,10 +255,11 @@
             
           </div>
           
-          <a href="static/RESUME_ElliotWeiss.pdf" download class="btn btn-glow" style="width:100%;text-align:center;margin-top:1rem;">
-            <i class="fa-solid fa-download"></i>&ensp;Download CV
-          </a>
-        </aside>
+        </div>
+
+        <a href="static/RESUME_ElliotWeiss.pdf" download class="btn btn-glow" style="max-width:320px;margin:1.5rem auto 0;text-align:center;display:flex;">
+          <i class="fa-solid fa-download"></i>&ensp;Download CV
+        </a>
       </div>
     </div>
   </section>
@@ -269,7 +273,14 @@
         <p>Have a project in mind or just want to connect?</p>
       </div>
 
-      <form class="contact-form glass-card reveal" id="contactForm">
+      <div class="contact-links" style="margin-bottom:2rem;">
+        <a href="https://linkedin.com/in/eweiss225" target="_blank" rel="noopener" class="contact-chip glass-card"><i class="fa-brands fa-linkedin-in"></i> Connect with me on LinkedIn</a>
+      </div>
+
+      <form class="contact-form glass-card reveal" id="contactForm" action="https://formsubmit.co/eweiss225@outlook.com" method="POST">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_next" value="https://elliot-weiss.com#contact">
+        <input type="text" name="_honey" style="display:none">
         <div class="form-row">
           <div class="form-group">
             <label for="c-name">Name <span class="req">*</span></label>
@@ -282,7 +293,7 @@
         </div>
         <div class="form-group">
           <label for="c-subject">Subject</label>
-          <input id="c-subject" name="subject" type="text" placeholder="What's this about?">
+          <input id="c-subject" name="_subject" type="text" placeholder="What's this about?">
         </div>
         <div class="form-group">
           <label for="c-message">Message <span class="req">*</span></label>
@@ -290,14 +301,8 @@
         </div>
         <button type="submit" class="btn btn-glow btn-full">
           <span class="btn-text">Send Message</span>
-          <span class="btn-loader" hidden><i class="fa-solid fa-circle-notch fa-spin"></i></span>
         </button>
-        <p class="form-status" id="formStatus"></p>
       </form>
-
-      <div class="contact-links">
-        <a href="https://linkedin.com/in/eweiss225" target="_blank" rel="noopener" class="contact-chip glass-card"><i class="fa-brands fa-linkedin-in"></i> Connect with me on LinkedIn</a>
-      </div>
     </div>
   </section>
 
@@ -396,21 +401,6 @@
       }
     });
 
-    /* ── Contact form — opens user's email client to send to eweiss225@outlook.com ── */
-    const form   = document.getElementById('contactForm');
-    form.addEventListener('submit', e => {
-      e.preventDefault();
-      const name    = form.name.value.trim();
-      const email   = form.email.value.trim();
-      const subject = form.subject.value.trim() || 'Portfolio Contact';
-      const message = form.message.value.trim();
-
-      if (!name || !email || !message) return;
-
-      const body = `From: ${name} (${email})\n\n${message}`;
-      const mailto = `mailto:eweiss225@outlook.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      window.location.href = mailto;
-    });
   </script>
 </body>
 </html>
