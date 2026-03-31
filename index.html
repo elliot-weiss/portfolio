@@ -273,6 +273,48 @@
     </div>
   </section>
 
+  <!-- ─── Testimonials ─── -->
+  <section id="testimonials">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Testimonials</span>
+        <h2>What People Say</h2>
+        <p>Feedback from colleagues and collaborators.</p>
+      </div>
+
+      <div class="testimonial-grid" id="testimonialGrid">
+        <p class="testimonial-empty" id="testimonialEmpty" style="text-align:center;color:var(--text-dim);">Loading testimonials...</p>
+      </div>
+
+      <div class="testimonial-form-wrap">
+        <h3 class="testimonial-form-title">Leave a Testimonial</h3>
+        <form class="contact-form glass-card reveal" id="testimonialForm" action="https://formsubmit.co/eweiss225@outlook.com" method="POST">
+          <input type="hidden" name="_captcha" value="false">
+          <input type="hidden" name="_next" value="https://elliot-weiss.com#testimonials">
+          <input type="hidden" name="_subject" value="New Testimonial Submission">
+          <input type="text" name="_honey" style="display:none">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="t-name">Name <span class="req">*</span></label>
+              <input id="t-name" name="name" type="text" placeholder="Your name" required>
+            </div>
+            <div class="form-group">
+              <label for="t-title">Title / Company</label>
+              <input id="t-title" name="title" type="text" placeholder="e.g. VP of Operations, Acme Corp">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="t-quote">Your Testimonial <span class="req">*</span></label>
+            <textarea id="t-quote" name="quote" rows="4" placeholder="Share your experience working with me..." required></textarea>
+          </div>
+          <button type="submit" class="btn btn-glow btn-full">
+            <span class="btn-text">Submit Testimonial</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
   <!-- ─── Contact ─── -->
   <section id="contact">
     <div class="container container-sm">
@@ -410,6 +452,60 @@
       }
     });
 
+    /* ── Testimonials from Google Sheets ── */
+    (function() {
+      const SHEET_ID = '1KWxuZVZxIJ_vn7rwgjUt10K3ktzp2bXpeouAmqw_C-s';
+      const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
+      const grid = document.getElementById('testimonialGrid');
+      const empty = document.getElementById('testimonialEmpty');
+
+      fetch(url)
+        .then(r => r.text())
+        .then(csv => {
+          const rows = [];
+          const lines = csv.split('\n');
+          for (let i = 1; i < lines.length; i++) {
+            const cols = [];
+            let current = '';
+            let inQuotes = false;
+            for (let c = 0; c < lines[i].length; c++) {
+              const ch = lines[i][c];
+              if (ch === '"') { inQuotes = !inQuotes; }
+              else if (ch === ',' && !inQuotes) { cols.push(current.trim()); current = ''; }
+              else { current += ch; }
+            }
+            cols.push(current.trim());
+            if (cols.length >= 4 && cols[3].toUpperCase() === 'Y') {
+              rows.push({ name: cols[0], title: cols[1], quote: cols[2] });
+            }
+          }
+
+          empty.remove();
+
+          if (rows.length === 0) {
+            grid.innerHTML = '<p style="text-align:center;color:var(--text-dim);grid-column:1/-1;">No testimonials yet. Be the first!</p>';
+            return;
+          }
+
+          rows.forEach(t => {
+            const card = document.createElement('div');
+            card.className = 'testimonial-card glass-card reveal visible';
+            card.innerHTML = `
+              <i class="fa-solid fa-quote-left testimonial-quote-icon"></i>
+              <p class="testimonial-quote">${t.quote.replace(/</g,'&lt;')}</p>
+              <i class="fa-solid fa-quote-right testimonial-quote-icon testimonial-quote-close"></i>
+              <div class="testimonial-author">
+                <p class="testimonial-name">${t.name.replace(/</g,'&lt;')}</p>
+                ${t.title ? '<p class="testimonial-title">' + t.title.replace(/</g,'&lt;') + '</p>' : ''}
+              </div>
+            `;
+            grid.appendChild(card);
+          });
+        })
+        .catch(() => {
+          empty.textContent = 'No testimonials yet. Be the first!';
+        });
+    })();
   </script>
 </body>
 </html>
