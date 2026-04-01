@@ -688,6 +688,7 @@ footer {
   .nav-logo-img { height:48px; }
   .nav-linkedin { display:none !important; }
   .nav-links.open .nav-linkedin { display:inline-flex !important; }
+  .theme-toggle { position:absolute; left:50%; transform:translateX(-50%); }
 
   /* Hero */
   #hero { padding:calc(var(--nav-h) + 1rem) 1rem 3rem; }
