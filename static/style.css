@@ -50,6 +50,7 @@ html.light .modal-header { background: rgba(245,240,232,0.95); }
 html.light .card-icon { color: var(--bg); }
 html.light .btn-glow { color: #f5f0e8; }
 html.light .orb { opacity: .1; }
+html.light .nav-logo-img { filter: brightness(0.45); }
 html.light .modal-iframe { background: #fff; }
 
 /* Theme toggle */
