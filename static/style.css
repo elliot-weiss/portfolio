@@ -15,6 +15,7 @@
   --gold-light:#e2d1a8;
   --grad:      linear-gradient(135deg, #c9a96e, #e2d1a8, #8a6e3e);
   --grad-warm: linear-gradient(135deg, #c9a96e, #a3884e);
+  --bg-alt:    #0f0e0b;
   --radius:    16px;
   --radius-sm: 10px;
   --font:      'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -22,6 +23,55 @@
   --max-w:     1140px;
   --nav-h:     72px;
 }
+
+/* ═══════════════════════════════════════
+   LIGHT MODE
+   ═══════════════════════════════════════ */
+html.light {
+  --bg:        #f5f0e8;
+  --bg-card:   rgba(138,110,62,0.06);
+  --bg-glass:  rgba(138,110,62,0.07);
+  --border:    rgba(138,110,62,0.18);
+  --text:      #3d3929;
+  --text-dim:  #6b6455;
+  --white:     #1a1814;
+  --gold:      #8a6e3e;
+  --gold-dark: #6b5530;
+  --gold-light:#5a4728;
+  --grad:      linear-gradient(135deg, #8a6e3e, #b8944e, #6b5530);
+  --grad-warm: linear-gradient(135deg, #8a6e3e, #6b5530);
+  --bg-alt:    #ece5d8;
+}
+html.light body { background: var(--bg); }
+html.light #navbar.scrolled {
+  background: rgba(245,240,232,0.88);
+}
+html.light .modal-header { background: rgba(245,240,232,0.95); }
+html.light .card-icon { color: var(--bg); }
+html.light .btn-glow { color: #f5f0e8; }
+html.light .orb { opacity: .1; }
+html.light .modal-iframe { background: #fff; }
+
+/* Theme toggle */
+.theme-toggle {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color .2s;
+  margin-left: .5rem;
+}
+.theme-toggle:hover {
+  color: var(--gold);
+}
+.theme-toggle .fa-sun { display: none; }
+html.light .theme-toggle .fa-sun { display: inline; }
+html.light .theme-toggle .fa-moon { display: none; }
 
 /* ═══════════════════════════════════════
    RESET
@@ -353,12 +403,12 @@ section { padding: 7rem 0; }
 /* ═══════════════════════════════════════
    RESEARCH SECTION
    ═══════════════════════════════════════ */
-#research { background: linear-gradient(180deg, var(--bg) 0%, #0f0e0b 100%); }
+#research { background: linear-gradient(180deg, var(--bg) 0%, var(--bg-alt) 100%); }
 
 /* ═══════════════════════════════════════
    CV SECTION
    ═══════════════════════════════════════ */
-#cv { background: linear-gradient(180deg, var(--bg) 0%, #0f0e0b 100%); }
+#cv { background: linear-gradient(180deg, var(--bg) 0%, var(--bg-alt) 100%); }
 
 .cv-layout {
   display:grid;
@@ -467,7 +517,7 @@ section { padding: 7rem 0; }
 /* ═══════════════════════════════════════
    TESTIMONIALS
    ═══════════════════════════════════════ */
-#testimonials { background: linear-gradient(180deg, #0f0e0b 0%, var(--bg) 100%); }
+#testimonials { background: linear-gradient(180deg, var(--bg-alt) 0%, var(--bg) 100%); }
 
 .testimonial-grid {
   display:grid;

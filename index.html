@@ -21,6 +21,10 @@
         <a href="#contact">Contact</a>
         <a href="https://linkedin.com/in/eweiss225" target="_blank" rel="noopener" class="nav-linkedin"><i class="fa-brands fa-linkedin-in"></i> LinkedIn</a>
       </div>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode">
+        <i class="fa-solid fa-moon"></i>
+        <i class="fa-solid fa-sun"></i>
+      </button>
       <button class="hamburger" id="hamburger" aria-label="Menu">
         <span></span><span></span><span></span>
       </button>
@@ -497,6 +501,12 @@
         iframe.src = '';
         document.body.style.overflow = '';
       }
+    });
+
+    /* ── Theme toggle ── */
+    const themeBtn = document.getElementById('themeToggle');
+    themeBtn.addEventListener('click', () => {
+      document.documentElement.classList.toggle('light');
     });
 
     /* ── Testimonials from Google Sheets ── */
