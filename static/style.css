@@ -351,6 +351,11 @@ section { padding: 7rem 0; }
 }
 
 /* ═══════════════════════════════════════
+   RESEARCH SECTION
+   ═══════════════════════════════════════ */
+#research { background: linear-gradient(180deg, var(--bg) 0%, #0f0e0b 100%); }
+
+/* ═══════════════════════════════════════
    CV SECTION
    ═══════════════════════════════════════ */
 #cv { background: linear-gradient(180deg, var(--bg) 0%, #0f0e0b 100%); }
