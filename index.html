@@ -8,6 +8,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="static/style.css">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
 </head>
 <body>
 
@@ -17,6 +25,7 @@
       <a href="#hero" class="logo"><img src="static/logo.svg" alt="Elliot Weiss" class="nav-logo-img"></a>
       <div class="nav-links" id="navLinks">
         <a href="#work">Work</a>
+        <a href="#research">Research</a>
         <a href="#cv">CV</a>
         <a href="#testimonials">Testimonials</a>
         <a href="#contact">Contact</a>
@@ -411,6 +420,11 @@
     </div>
   </section>
 
+  <!-- Back to top -->
+  <button class="back-to-top" id="backToTop" aria-label="Back to top">
+    <i class="fa-solid fa-arrow-up"></i>
+  </button>
+
   <!-- ─── Footer ─── -->
   <footer>
     <div class="container">
@@ -506,10 +520,23 @@
       }
     });
 
-    /* ── Theme toggle ── */
+    /* ── Theme toggle (persisted) ── */
     const themeBtn = document.getElementById('themeToggle');
+    if (localStorage.getItem('theme') === 'light') {
+      document.documentElement.classList.add('light');
+    }
     themeBtn.addEventListener('click', () => {
       document.documentElement.classList.toggle('light');
+      localStorage.setItem('theme', document.documentElement.classList.contains('light') ? 'light' : 'dark');
+    });
+
+    /* ── Back to top ── */
+    const btt = document.getElementById('backToTop');
+    window.addEventListener('scroll', () => {
+      btt.classList.toggle('visible', window.scrollY > 600);
+    });
+    btt.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
     /* ── Testimonials from Google Sheets ── */
