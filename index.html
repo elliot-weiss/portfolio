@@ -449,6 +449,7 @@
     navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
       hamburger.classList.remove('active');
       navLinks.classList.remove('open');
+      gtag('event', 'click_nav_link', { link: a.getAttribute('href') || a.textContent.trim() });
     }));
 
     /* ── Smooth scroll ── */
@@ -465,6 +466,40 @@
       entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
     }, { threshold: 0.12 });
     document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+    /* ── GA: Section views ── */
+    const sectionsSeen = {};
+    const sectionObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting && !sectionsSeen[e.target.id]) {
+          sectionsSeen[e.target.id] = true;
+          gtag('event', 'view_' + e.target.id, { section: e.target.id });
+        }
+      });
+    }, { threshold: 0.25 });
+    ['work','research','cv','testimonials','contact'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) sectionObs.observe(el);
+    });
+
+    /* ── GA: Research PDF clicks ── */
+    document.querySelectorAll('.research-card').forEach(card => {
+      card.addEventListener('click', () => {
+        gtag('event', 'open_research_pdf', { paper: card.querySelector('h3').textContent });
+      });
+    });
+
+    /* ── GA: Download CV ── */
+    document.querySelector('a[download]')?.addEventListener('click', () => {
+      gtag('event', 'download_cv');
+    });
+
+    /* ── GA: LinkedIn clicks ── */
+    document.querySelectorAll('a[href*="linkedin"]').forEach(a => {
+      a.addEventListener('click', () => {
+        gtag('event', 'click_linkedin', { location: a.closest('section')?.id || 'navbar' });
+      });
+    });
 
     /* ── Card mouse glow ── */
     document.querySelectorAll('.card').forEach(card => {
@@ -499,6 +534,7 @@
         modal.classList.add('open');
         document.body.style.overflow = 'hidden';
         requestAnimationFrame(scaleIframe);
+        gtag('event', 'open_dashboard', { dashboard: title });
       });
     });
 
@@ -527,7 +563,9 @@
     }
     themeBtn.addEventListener('click', () => {
       document.documentElement.classList.toggle('light');
-      localStorage.setItem('theme', document.documentElement.classList.contains('light') ? 'light' : 'dark');
+      const mode = document.documentElement.classList.contains('light') ? 'light' : 'dark';
+      localStorage.setItem('theme', mode);
+      gtag('event', 'toggle_theme', { mode: mode });
     });
 
     /* ── Back to top ── */
@@ -537,6 +575,15 @@
     });
     btt.addEventListener('click', () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      gtag('event', 'click_back_to_top');
+    });
+
+    /* ── GA: Form submissions ── */
+    document.getElementById('contactForm')?.addEventListener('submit', () => {
+      gtag('event', 'submit_contact_form');
+    });
+    document.getElementById('testimonialForm')?.addEventListener('submit', () => {
+      gtag('event', 'submit_testimonial');
     });
 
     /* ── Testimonials from Google Sheets ── */
