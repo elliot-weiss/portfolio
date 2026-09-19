@@ -82,7 +82,7 @@
       <div class="orb orb-3"></div>
     </div>
     <div class="hero-content">
-      <img src="static/headshot.jpeg" alt="Elliot Weiss" class="hero-headshot">
+      <img src="static/headshot.jpeg" alt="Elliot Weiss" class="hero-headshot" id="heroHeadshot" role="button" tabindex="0" aria-label="View headshot closeup">
       <div class="hero-badge">Data Analytics Professional &amp; Data Storyteller</div>
       <h1>Hi, I'm <span class="gradient-text">Elliot Weiss</span></h1>
       <p class="hero-sub">I turn complex data into dashboards people actually want to use.</p>
@@ -139,6 +139,16 @@
           <div class="card-glow"></div>
         </article>
         
+      </div>
+
+      <!-- Headshot Modal -->
+      <div class="headshot-modal" id="headshotModal" role="dialog" aria-modal="true" aria-label="Headshot closeup">
+        <div class="headshot-modal-card">
+          <button class="headshot-modal-close" id="headshotModalClose" aria-label="Close">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+          <img src="static/headshot-full.jpeg" alt="Elliot Weiss headshot closeup" class="headshot-modal-img">
+        </div>
       </div>
 
       <!-- Dashboard Modal -->
@@ -586,6 +596,31 @@
         iframe.src = '';
         document.body.style.overflow = '';
       }
+    });
+
+    /* ── Headshot modal ── */
+    const hsModal = document.getElementById('headshotModal');
+    const hsClose = document.getElementById('headshotModalClose');
+    const hsImg   = document.getElementById('heroHeadshot');
+    function openHeadshot() {
+      hsModal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      gtag('event', 'open_headshot');
+    }
+    function closeHeadshot() {
+      hsModal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    hsImg.addEventListener('click', openHeadshot);
+    hsImg.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openHeadshot(); }
+    });
+    hsClose.addEventListener('click', closeHeadshot);
+    hsModal.addEventListener('click', e => {
+      if (e.target === hsModal) closeHeadshot();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && hsModal.classList.contains('open')) closeHeadshot();
     });
 
     /* ── Theme toggle (persisted) ── */
